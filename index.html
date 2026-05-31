@@ -17,3 +17,694 @@
 <body>
 
 <div id="root"></div>
+
+<script src="https://unpkg.com/react@18.3.1/umd/react.production.min.js" crossorigin></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.production.min.js" crossorigin></script>
+
+<script>
+try {
+const {
+  useState,
+  useEffect,
+  useMemo,
+  useRef
+} = React;
+const storage = {
+  get: k => {
+    try {
+      const v = localStorage.getItem(k);
+      return v == null ? null : { value: v };
+    } catch (e) { return null; }
+  },
+  set: (k, v) => {
+    try { localStorage.setItem(k, v); } catch (e) {}
+  }
+};
+
+const ICONS = {
+  "wallet": "<path d=\"M21 12V7H5a2 2 0 0 1 0-4h14v4\"/><path d=\"M3 5v14a2 2 0 0 0 2 2h16v-5\"/><path d=\"M18 12a2 2 0 0 0 0 4h4v-4Z\"/>",
+  "trending-down": "<polyline points=\"22 17 13.5 8.5 8.5 13.5 2 7\"/><polyline points=\"16 17 22 17 22 11\"/>",
+  "trending-up": "<polyline points=\"22 7 13.5 15.5 8.5 10.5 2 17\"/><polyline points=\"16 7 22 7 22 13\"/>",
+  "landmark": "<line x1=\"3\" x2=\"21\" y1=\"22\" y2=\"22\"/><line x1=\"6\" x2=\"6\" y1=\"18\" y2=\"11\"/><line x1=\"10\" x2=\"10\" y1=\"18\" y2=\"11\"/><line x1=\"14\" x2=\"14\" y1=\"18\" y2=\"11\"/><line x1=\"18\" x2=\"18\" y1=\"18\" y2=\"11\"/><polygon points=\"12 2 20 7 4 7\"/>",
+  "code": "<path d=\"m18 16 4-4-4-4\"/><path d=\"m6 8-4 4 4 4\"/><path d=\"m14.5 4-5 16\"/>",
+  "bar-chart": "<path d=\"M3 3v18h18\"/><path d=\"M18 17V9\"/><path d=\"M13 17V5\"/><path d=\"M8 17v-3\"/>",
+  "calendar": "<path d=\"M8 2v4\"/><path d=\"M16 2v4\"/><rect width=\"18\" height=\"18\" x=\"3\" y=\"4\" rx=\"2\"/><path d=\"M3 10h18\"/>",
+  "users": "<path d=\"M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2\"/><circle cx=\"9\" cy=\"7\" r=\"4\"/><path d=\"M22 21v-2a4 4 0 0 0-3-3.87\"/><path d=\"M16 3.13a4 4 0 0 1 0 7.75\"/>",
+  "plus-circle": "<circle cx=\"12\" cy=\"12\" r=\"10\"/><path d=\"M8 12h8\"/><path d=\"M12 8v8\"/>",
+  "list": "<path d=\"m3 17 2 2 4-4\"/><path d=\"m3 7 2 2 4-4\"/><path d=\"M13 6h8\"/><path d=\"M13 12h8\"/><path d=\"M13 18h8\"/>",
+  "pencil": "<path d=\"M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z\"/><path d=\"m15 5 4 4\"/>",
+  "activity": "<path d=\"M22 12h-2.48a2 2 0 0 0-1.93 1.46l-2.35 8.36a.25.25 0 0 1-.48 0L9.24 2.18a.25.25 0 0 0-.48 0l-2.35 8.36A2 2 0 0 1 4.49 12H2\"/>",
+  "trash": "<path d=\"M3 6h18\"/><path d=\"M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2\"/><line x1=\"10\" x2=\"10\" y1=\"11\" y2=\"17\"/><line x1=\"14\" x2=\"14\" y1=\"11\" y2=\"17\"/>"
+};
+
+function Icon({ name, size = 18 }) {
+  return React.createElement("svg", {
+    width: size, height: size, viewBox: "0 0 24 24", fill: "none",
+    stroke: "currentColor", strokeWidth: 2.2, strokeLinecap: "round",
+    strokeLinejoin: "round", dangerouslySetInnerHTML: { __html: ICONS[name] || "" }
+  });
+}
+
+const EXPENSE_FIELDS = [
+  { key: "ads", label: "رسوم الإعلانات" },
+  { key: "salaries", label: "رواتب الموظفين" },
+  { key: "whatsapp", label: "اشتراك الواتس اب" },
+  { key: "loan", label: "قسط القرض" },
+  { key: "codes", label: "دفعة الأكواد" },
+  { key: "emergency", label: "دفعات طارئة" }
+];
+
+const ALL_FIELDS = ["income", ...EXPENSE_FIELDS.map(f => f.key)];
+const DEBT_KEYS = ["loan", "codes"];
+const OP_KEYS = EXPENSE_FIELDS.map(f => f.key).filter(k => !DEBT_KEYS.includes(k));
+
+const SEED = [
+  {month:"شهر 10 - 2024",income:128000,ads:48000,salaries:10000,whatsapp:2000,loan:20000,codes:0,emergency:0},
+  {month:"شهر 9 - 2024",income:133000,ads:42000,salaries:10000,whatsapp:0,loan:20000,codes:0,emergency:0},
+  {month:"شهر 11 - 2024",income:133000,ads:37000,salaries:10000,whatsapp:2000,loan:20000,codes:0,emergency:14000},
+  {month:"شهر 12 - 2024",income:100000,ads:27000,salaries:10000,whatsapp:2000,loan:20000,codes:0,emergency:0},
+  {month:"شهر 1 - 2025",income:116000,ads:31000,salaries:10000,whatsapp:2000,loan:20000,codes:0,emergency:5800},
+  {month:"شهر 2 - 2025",income:139000,ads:41000,salaries:10000,whatsapp:2000,loan:20000,codes:0,emergency:0},
+  {month:"شهر 3 - 2025",income:151000,ads:45000,salaries:11000,whatsapp:2200,loan:20000,codes:0,emergency:0},
+  {month:"شهر 4 - 2025",income:151000,ads:39000,salaries:10000,whatsapp:2200,loan:20000,codes:0,emergency:0},
+  {month:"شهر 6 - 2025",income:130000,ads:34000,salaries:10000,whatsapp:2000,loan:20000,codes:15000,emergency:0},
+  {month:"شهر 7 - 2025",income:100000,ads:32000,salaries:10000,whatsapp:2000,loan:20000,codes:0,emergency:0},
+  {month:"شهر 8 - 2025",income:200000,ads:60000,salaries:10000,whatsapp:2000,loan:20000,codes:15000,emergency:3300},
+  {month:"شهر 9 - 2025",income:215000,ads:52000,salaries:10000,whatsapp:2000,loan:20000,codes:15000,emergency:0},
+  {month:"شهر 10 - 2025",income:170000,ads:45000,salaries:10000,whatsapp:2000,loan:20000,codes:15000,emergency:0},
+  {month:"شهر 11 - 2025",income:125000,ads:45000,salaries:10000,whatsapp:2000,loan:0,codes:0,emergency:0},
+  {month:"شهر 12 - 2025",income:130000,ads:32000,salaries:10000,whatsapp:2000,loan:20000,codes:15000,emergency:0},
+  {month:"شهر 1 - 2026",income:144000,ads:35000,salaries:10000,whatsapp:2000,loan:20000,codes:15000,emergency:29000},
+  {month:"شهر 2 - 2026",income:92000,ads:0,salaries:6500,whatsapp:0,loan:0,codes:15000,emergency:0},
+  {month:"شهر 3 - 2026",income:144000,ads:35000,salaries:10000,whatsapp:2000,loan:20000,codes:15000,emergency:0},
+  {month:"شهر 4 - 2026",income:190000,ads:46000,salaries:6000,whatsapp:0,loan:20000,codes:15000,emergency:16000},
+  {month:"شهر 5 - 2026",income:185000,ads:41250,salaries:12500,whatsapp:0,loan:20000,codes:15000,emergency:11250}
+].map((r,i) => ({id:"seed-"+i,...r}));
+const SEED_MONTHS = Object.fromEntries(SEED.map(r=>[r.id,r.month]));
+const SEED_PARTNERS = [{id:"p1",name:"أحمد",salary:20000},{id:"p2",name:"طلال",salary:20000}];
+const seedPaid = key => SEED.reduce((a,r)=>a+(Number(r[key])||0),0);
+const SEED_DEBTS = {
+  loan:{total:500000,paidAnchor:320000,base:seedPaid("loan")},
+  codes:{total:350000,paidAnchor:165000,base:seedPaid("codes")}
+};
+
+const REC_KEY = "triohub_accounts_records_v2";
+const OLD_KEY = "triohub_accounts_records_v1";
+const PARTNERS_KEY = "triohub_partners_v1";
+const CARD_ICONS = {blue:"wallet",amber:"trending-down",purple:"landmark",rose:"code",teal:"bar-chart"};
+const METRICS = [
+  {key:"net",label:"صافي الربح",color:"#7c5cfc"},
+  {key:"income",label:"الدخل",color:"#22c55e"},
+  {key:"expenses",label:"المصاريف",color:"#f59e0b"}
+];
+const sumExpenses = r => EXPENSE_FIELDS.reduce((a,f)=>a+(Number(r[f.key])||0),0);
+const sumOperational = r => OP_KEYS.reduce((a,k)=>a+(Number(r[k])||0),0);
+const netProfit = r => (Number(r.income)||0)-sumExpenses(r);
+const fmt = n => (Number(n)||0).toLocaleString("en-US");
+const parseMY = label => {
+  const nums=(String(label).match(/\d+/g)||[]).map(Number);
+  return{m:nums.find(n=>n>=1&&n<=12)??nums[0]??null,y:nums.find(n=>n>31)??null};
+};
+const shortMonth = label => String(label).replace(/\s*-?\s*\d{4}\s*$/, "").trim();
+const sortRecs = rs => [...rs].sort((a,b)=>{
+  const A=parseMY(a.month),B=parseMY(b.month);
+  return(A.y||0)-(B.y||0)||(A.m||0)-(B.m||0);
+});
+const migrate = list => list.map(r => {
+  const{installment,reserve,...rest}=r;
+  const month=SEED_MONTHS[rest.id]||rest.month;
+  if(installment!==undefined&&rest.loan===undefined&&rest.codes===undefined){
+    const v=Number(installment)||0;const loan=v>=20000?20000:0;
+    return{...rest,month,loan,codes:v-loan};
+  }
+  return{...rest,month,loan:Number(rest.loan)||0,codes:Number(rest.codes)||0};
+});
+const emptyForm=()=>ALL_FIELDS.reduce((a,k)=>({...a,[k]:""}),{mon:"",yr:"2026"});
+
+function MonthPicker({records,period,onChange}){
+  const[open,setOpen]=React.useState(false);
+  const years=[...new Set(records.map(r=>parseMY(r.month).y).filter(Boolean))].sort((a,b)=>a-b);
+  const[py,setPy]=React.useState(years[years.length-1]||new Date().getFullYear());
+  const current=period==="all"?"كل المدة":typeof period==="string"&&period.startsWith("year:")?"سنة "+period.slice(5):records.find(r=>r.id===period)?.month?.trim()||"اختر";
+  const recForM=m=>records.find(r=>{const p=parseMY(r.month);return p.y===py&&p.m===m});
+  return React.createElement("div",{className:"th-picker"},
+    React.createElement("button",{className:"th-picker-btn",onClick:()=>setOpen(o=>!o)},
+      React.createElement("span",{className:"th-picker-label"},React.createElement(Icon,{name:"calendar",size:17})," ",current),
+      React.createElement("span",{className:"caret"},"▾")),
+    open&&React.createElement(React.Fragment,null,
+      React.createElement("div",{className:"th-pick-backdrop",onClick:()=>setOpen(false)}),
+      React.createElement("div",{className:"th-pick-pop"},
+        React.createElement("button",{className:"th-pick-all "+(period==="all"?"on":""),onClick:()=>{onChange("all");setOpen(false)}},"كل المدة (كل الأشهر)"),
+        React.createElement("div",{className:"th-pick-ynav"},
+          React.createElement("button",{onClick:()=>setPy(y=>y-1)},"‹"),
+          React.createElement("span",null,py),
+          React.createElement("button",{onClick:()=>setPy(y=>y+1)},"›")),
+        React.createElement("button",{className:"th-pick-yearall "+(period==="year:"+py?"on":""),onClick:()=>{onChange("year:"+py);setOpen(false)}},"عرض كل سنة ",py),
+        React.createElement("div",{className:"th-pick-grid"},
+          Array.from({length:12},(_,i)=>i+1).map(m=>{
+            const rec=recForM(m);const active=rec&&rec.id===period;
+            return React.createElement("button",{key:m,disabled:!rec,className:"th-pick-m "+(active?"on":"")+" "+(!rec?"off":""),onClick:()=>{if(rec){onChange(rec.id);setOpen(false)}}},m,rec&&React.createElement("i",null));
+          })),
+        React.createElement("p",{className:"th-pick-hint"},"الشهور اللي عليها نقطة فيها بيانات"))));
+}
+
+function Card({label,value,tone,plain}){
+  const Ico=CARD_ICONS[tone];
+  return React.createElement("div",{className:"th-card "+tone},
+    React.createElement("span",{className:"th-card-ico"},Ico&&React.createElement(Icon,{name:Ico,size:19})),
+    React.createElement("span",{className:"th-card-label"},label),
+    React.createElement("span",{className:"th-card-value"},plain?value:fmt(value)));
+}
+
+function Field({label,hint,tone,children}){
+  return React.createElement("label",{className:"th-field "+(tone||"")},
+    React.createElement("span",{className:"th-field-label"},label),
+    children,
+    hint&&React.createElement("span",{className:"th-field-hint"},hint));
+}
+
+function DebtCard({label,total,paidAnchor,base,paidNow}){
+  const t=Number(total)||0;
+  const paid=(Number(paidAnchor)||0)+(paidNow-(Number(base)||0));
+  const remaining=t-paid;
+  const pct=t>0?Math.min(100,Math.max(0,Math.round(paid/t*100))):0;
+  return React.createElement("div",{className:"th-debt"},
+    React.createElement("span",{className:"th-debt-name"},label),
+    React.createElement("div",{className:"th-debt-stats"},
+      React.createElement("div",null,React.createElement("span",null,"أصل المبلغ"),React.createElement("b",null,fmt(t))),
+      React.createElement("div",null,React.createElement("span",null,"مدفوع"),React.createElement("b",null,fmt(Math.max(0,paid)))),
+      React.createElement("div",null,React.createElement("span",null,"متبقّي"),React.createElement("b",{className:t>0&&remaining<=0?"done":"rem"},fmt(Math.max(0,remaining))))),
+    React.createElement("div",{className:"th-debt-bar"},React.createElement("div",{style:{width:pct+"%"}})),
+    React.createElement("span",{className:"th-debt-pct"},pct+"% اتسدّ د"+(remaining<=0&&t>0?" — خلص ✓":"")+" • كل قسط جديد بينقص المتبقّي تلقائيًا"));
+}
+
+function MiniAreaChart({data,color,label}){
+  if(!data||!data.length)return React.createElement("div",{className:"th-chart-empty"},"مفيش بيانات للعرض");
+  const W=Math.max(320,data.length*64),H=250,padX=26,padTop=34,padBot=34;
+  const innerW=W-padX*2,innerH=H-padTop-padBot;
+  const vals=data.map(d=>d.value);
+  const max=Math.max(...vals,0),min=Math.min(...vals,0);
+  const range=max-min||1;
+  const x=i=>padX+(data.length===1?innerW/2:i/(data.length-1)*innerW);
+  const y=v=>padTop+innerH-(v-min)/range*innerH;
+  const pts=data.map((d,i)=>[x(i),y(d.value)]);
+  const line=pts.map((p,i)=>(i?"L":"M")+p[0].toFixed(1)+" "+p[1].toFixed(1)).join(" ");
+  const area=line+" L "+pts[pts.length-1][0].toFixed(1)+" "+(padTop+innerH).toFixed(1)+" L "+pts[0][0].toFixed(1)+" "+(padTop+innerH).toFixed(1)+" Z";
+  const fmtK=v=>Math.abs(v)>=1000?Math.round(v/1000)+"k":String(v);
+  const gid="g_"+color.replace(/[^a-z0-9]/gi,"");
+  return React.createElement("svg",{width:W,height:H,viewBox:"0 0 "+W+" "+H,style:{display:"block"}},
+    React.createElement("defs",null,
+      React.createElement("linearGradient",{id:gid,x1:"0",y1:"0",x2:"0",y2:"1"},
+        React.createElement("stop",{offset:"0%",stopColor:color,stopOpacity:"0.34"}),
+        React.createElement("stop",{offset:"100%",stopColor:color,stopOpacity:"0.02"}))),
+    [0,0.25,0.5,0.75,1].map((t,i)=>React.createElement("line",{key:i,x1:padX,y1:padTop+innerH*t,x2:W-padX,y2:padTop+innerH*t,stroke:"#f1edfc",strokeWidth:"1"})),
+    React.createElement("path",{d:area,fill:"url(#"+gid+")"}),
+    React.createElement("path",{d:line,fill:"none",stroke:color,strokeWidth:"3",strokeLinejoin:"round",strokeLinecap:"round"}),
+    pts.map((p,i)=>React.createElement("g",{key:i},
+      React.createElement("circle",{cx:p[0],cy:p[1],r:"4",fill:"#fff",stroke:color,strokeWidth:"2.5"}),
+      React.createElement("text",{x:p[0],y:p[1]-12,textAnchor:"middle",fontSize:"11",fontWeight:"800",fill:"#3f3760"},fmtK(data[i].value)),
+      React.createElement("text",{x:p[0],y:H-12,textAnchor:"middle",fontSize:"12",fontWeight:"600",fill:"#9a93b8"},data[i].name))));
+}
+
+function App(){
+  const[records,setRecords]=React.useState(null);
+  const[partners,setPartners]=React.useState(SEED_PARTNERS);
+  const[period,setPeriod]=React.useState("all");
+  const[metric,setMetric]=React.useState("net");
+  const[chartRange,setChartRange]=React.useState("recent");
+  const[form,setForm]=React.useState(emptyForm());
+  const[editingId,setEditingId]=React.useState(null);
+  const[editForm,setEditForm]=React.useState(null);
+  const[editingPartners,setEditingPartners]=React.useState(false);
+  const[saved,setSaved]=React.useState(true);
+  const recFirst=React.useRef(true);
+  const partFirst=React.useRef(true);
+
+  React.useEffect(()=>{
+    (async()=>{
+      try{
+        let data=null;
+        try{const r=await storage.get(REC_KEY);data=r?JSON.parse(r.value):null;}catch(e){}
+        if(!(Array.isArray(data)&&data.length)){
+          try{const o=await storage.get(OLD_KEY);const od=o?JSON.parse(o.value):null;if(Array.isArray(od)&&od.length)data=od;}catch(e){}
+        }
+        const finalRecs=sortRecs(Array.isArray(data)&&data.length?migrate(data):SEED);
+        setRecords(finalRecs);
+        if(finalRecs.length)setPeriod(finalRecs[finalRecs.length-1].id);
+      }catch(e){setRecords(SEED);}
+      try{
+        const p=await storage.get(PARTNERS_KEY);
+        const pd=p?JSON.parse(p.value):null;
+        if(Array.isArray(pd)&&pd.length)setPartners(pd.map(x=>({salary:0,...x})));
+      }catch(e){}
+    })();
+  },[]);
+
+  React.useEffect(()=>{
+    if(records===null)return;
+    if(recFirst.current){recFirst.current=false;return;}
+    setSaved(false);
+    (async()=>{try{await storage.set(REC_KEY,JSON.stringify(records));setSaved(true);}catch(e){}})();
+  },[records]);
+
+  React.useEffect(()=>{
+    if(partFirst.current){partFirst.current=false;return;}
+    (async()=>{try{await storage.set(PARTNERS_KEY,JSON.stringify(partners));}catch(e){}})();
+  },[partners]);
+
+  const paidLoan=(records||[]).reduce((a,r)=>a+(Number(r.loan)||0),0);
+  const paidCodes=(records||[]).reduce((a,r)=>a+(Number(r.codes)||0),0);
+  
+  const view2=React.useMemo(()=>{
+    const recs=records||[];
+    if(period==="all")return recs;
+    if(typeof period==="string"&&period.startsWith("year:")){
+      const y=Number(period.slice(5));return recs.filter(r=>parseMY(r.month).y===y);
+    }
+    return recs.filter(r=>r.id===period);
+  },[records,period]);
+
+  const totals=React.useMemo(()=>{
+    const income=view2.reduce((a,r)=>a+(Number(r.income)||0),0);
+    const expenses=view2.reduce((a,r)=>a+sumExpenses(r),0);
+    const net=income-expenses;
+    return{income,expenses,net,
+      operational:view2.reduce((s,r)=>s+sumOperational(r),0),
+      avg:view2.length?Math.round(net/view2.length):0,
+      count:view2.length,
+      byField:ALL_FIELDS.reduce((a,k)=>({...a,[k]:view2.reduce((s,r)=>s+(Number(r[k])||0),0)}),{})};
+  },[view2]);
+
+  const periodLabel=period==="all"?"كل المدة":typeof period==="string"&&period.startsWith("year:")?"سنة "+period.slice(5):(records||[]).find(r=>r.id===period)?.month?.trim()||"";
+
+  const monthDist=r=>{
+    const opNet=netProfit(r);const loss=opNet<0;
+    const n=partners.length||1;const perPartner=loss?0:opNet/n;
+    return{opNet,loss,perPartner,reserve:0};
+  };
+
+  const partnerTake=p=>view2.reduce((a,r)=>{
+    const d=monthDist(r);return a+(d.loss?0:d.perPartner);
+  },0);
+
+  const sharePct=partners.length?Math.round(100/partners.length):0;
+
+  const comparison=React.useMemo(()=>{
+    const recs=records||[];
+    if(typeof period==="string"&&period.startsWith("year:")){
+      const y=Number(period.slice(5));
+      const prev=recs.filter(r=>parseMY(r.month).y===y-1);
+      if(!prev.length)return null;
+      const curNet=recs.filter(r=>parseMY(r.month).y===y).reduce((a,r)=>a+netProfit(r),0);
+      const prevNet=prev.reduce((a,r)=>a+netProfit(r),0);
+      return{diff:curNet-prevNet,pct:prevNet!==0?Math.round((curNet-prevNet)/Math.abs(prevNet)*100):null,label:"مقارنة بسنة "+(y-1)};
+    }
+    const idx=period==="all"?(recs.length-1):recs.findIndex(r=>r.id===period);
+    if(idx<=0)return null;
+    const diff=netProfit(recs[idx])-netProfit(recs[idx-1]);
+    const prev=netProfit(recs[idx-1]);
+    return{diff,pct:prev!==0?Math.round(diff/Math.abs(prev)*100):null,label:"مقارنة بـ "+recs[idx-1].month.trim()};
+  },[records,period]);
+
+  const chartYears=React.useMemo(()=>[...new Set((records||[]).map(r=>parseMY(r.month).y).filter(Boolean))].sort((a,b)=>b-a),[records]);
+  const activeMetric=METRICS.find(m=>m.key===metric);
+  const chartRecords=React.useMemo(()=>{
+    if(chartRange==="recent")return(records||[]).slice(-6);
+    return(records||[]).filter(r=>parseMY(r.month).y===chartRange);
+  },[records,chartRange]);
+  const chartData=chartRecords.map(r=>({name:shortMonth(r.month),value:metric==="net"?netProfit(r):metric==="income"?Number(r.income)||0:sumExpenses(r)}));
+  const liveNet=netProfit({income:form.income,...EXPENSE_FIELDS.reduce((a,f)=>({...a,[f.key]:form[f.key]}),{})});
+  const setField=(k,v)=>setForm(f=>({...f,[k]:v}));
+
+  const submit=()=>{
+    if(!form.mon||!form.yr)return;
+    const rec={id:"r-"+Date.now(),month:"شهر "+form.mon+" - "+form.yr,...ALL_FIELDS.reduce((a,k)=>({...a,[k]:Number(form[k])||0}),{})};
+    setRecords(rs=>sortRecs([...(rs||[]),rec]));setForm(emptyForm());
+  };
+  const edit=r=>{
+    const my=parseMY(r.month);setEditingId(r.id);
+    setEditForm({id:r.id,mon:String(my.m||""),yr:String(my.y||""),...ALL_FIELDS.reduce((a,k)=>({...a,[k]:String(r[k]??"")}),{})});
+  };
+  const setEField=(k,v)=>setEditForm(f=>({...f,[k]:v}));
+  const saveEdit=()=>{
+    if(!editForm||!editForm.mon||!editForm.yr)return;
+    const rec={month:"شهر "+editForm.mon+" - "+editForm.yr,...ALL_FIELDS.reduce((a,k)=>({...a,[k]:Number(editForm[k])||0}),{})};
+    setRecords(rs=>sortRecs(rs.map(r=>r.id===editingId?{...r,...rec}:r)));
+    setEditingId(null);setEditForm(null);
+  };
+  const cancelEdit=()=>{setEditingId(null);setEditForm(null);};
+  const remove=id=>setRecords(rs=>rs.filter(r=>r.id!==id));
+  const resetAll=()=>{
+    if(window.confirm("هترجّع كل البيانات للأصل اللي من الاكسل؟")){
+      setEditingId(null);setForm(emptyForm());setRecords(sortRecs(SEED));
+    }
+  };
+  const addPartner=()=>setPartners(ps=>[...ps,{id:"p-"+Date.now(),name:"شريك جديد",salary:0}]);
+  const updPartner=(id,k,v)=>setPartners(ps=>ps.map(p=>p.id===id?{...p,[k]:v}:p));
+  const delPartner=id=>setPartners(ps=>ps.filter(p=>p.id!==id));
+  const exportCSV=()=>{
+    const head=["الشهر","الدخل الشهري",...EXPENSE_FIELDS.map(f=>f.label),"صافي الربح","نصيب كل شريك"];
+    const rows=(records||[]).map(r=>[r.month,r.income,...EXPENSE_FIELDS.map(f=>r[f.key]||0),netProfit(r),Math.round(monthDist(r).perPartner)]);
+    const csv="\uFEFF"+[head,...rows].map(r=>r.join(",")).join("\n");
+    const url=URL.createObjectURL(new Blob([csv],{type:"text/csv;charset=utf-8;"}));
+    const a=document.createElement("a");a.href=url;a.download="حسابات_trio_hub.csv";a.click();URL.revokeObjectURL(url);
+  };
+  const hour=new Date().getHours();
+  const greet=hour<12?"صباح الخير":hour<17?"نهارك سعيد":"مساء الخير";
+  let today="";
+  try{today=new Date().toLocaleDateString("ar-EG",{weekday:"long",day:"numeric",month:"long",year:"numeric"});}catch(e){}
+
+  if(records===null)return React.createElement("div",{className:"th-root th-center",dir:"rtl"},
+    React.createElement("style",null,CSS),
+    React.createElement("div",{className:"th-spinner"}));
+
+  return React.createElement("div",{className:"th-root",dir:"rtl"},
+    React.createElement("style",null,CSS),
+    React.createElement("header",{className:"th-header"},
+      React.createElement("div",{className:"th-greet"},
+        React.createElement("p",{className:"th-hi"},greet," 👋"),
+        React.createElement("p",{className:"th-date"},today)),
+      React.createElement("div",{className:"th-brand"},
+        React.createElement("span",{className:"th-status"},
+          React.createElement("span",{className:"th-dot "+(saved?"ok":"wait")}),
+          saved?"محفوظ":"جاري الحفظ…"),
+        React.createElement("div",{className:"th-logo"},"TH"))),
+
+    React.createElement("div",{className:"th-hero"},
+      React.createElement("div",{className:"th-hero-top"},
+        React.createElement("span",null,periodLabel==="كل المدة"?"صافي الربح — كل المدة":"صافي ربح "+periodLabel),
+        React.createElement("span",{className:"th-hero-tag"},"Trio Hub")),
+      React.createElement("div",{className:"th-hero-val "+(totals.net>=0?"":"neg")},fmt(totals.net)),
+      React.createElement("div",{className:"th-hero-stats"},
+        React.createElement("div",null,React.createElement("b",null,fmt(totals.income)),React.createElement("span",null,"الدخل")),
+        React.createElement("div",null,React.createElement("b",null,fmt(totals.expenses)),React.createElement("span",null,"المصاريف")),
+        React.createElement("div",null,
+          comparison?React.createElement("b",{className:"cmp "+(comparison.diff>=0?"up":"down")},
+            comparison.diff>=0?React.createElement(Icon,{name:"trending-up",size:15}):React.createElement(Icon,{name:"trending-down",size:15}),
+            comparison.pct!==null?(comparison.diff>=0?"+":"")+comparison.pct+"%":(comparison.diff>=0?"+":"")+fmt(comparison.diff)):
+            React.createElement("b",{className:"cmp flat"},"—"),
+          React.createElement("span",null,comparison?comparison.label:"لا توجد مقارنة")))),
+
+    React.createElement("div",{className:"th-period"},
+      React.createElement("label",null,"المدة المعروضة"),
+      React.createElement(MonthPicker,{records:records||[],period:period,onChange:setPeriod}),
+      React.createElement("span",{className:"th-period-count"},view2.length," شهر")),
+    React.createElement("section",{className:"th-cards"},
+      React.createElement(Card,{label:"الدخل",value:totals.income,tone:"blue"}),
+      React.createElement(Card,{label:"مصاريف تشغيلية",value:totals.operational,tone:"amber"}),
+      React.createElement(Card,{label:"قسط القرض",value:totals.byField.loan,tone:"purple"}),
+      React.createElement(Card,{label:"دفعة الأكواد",value:totals.byField.codes,tone:"rose"}),
+      period==="all"&&React.createElement(Card,{label:"متوسط الربح الشهري",value:totals.avg,tone:"teal"})),
+
+    React.createElement("section",{className:"th-panel"},
+      React.createElement("h2",null,React.createElement(Icon,{name:"landmark",size:17}),"الالتزامات والمتبقّي"),
+      React.createElement("div",{className:"th-debts"},
+        React.createElement(DebtCard,{label:"القرض",total:SEED_DEBTS.loan.total,paidAnchor:SEED_DEBTS.loan.paidAnchor,base:SEED_DEBTS.loan.base,paidNow:paidLoan}),
+        React.createElement(DebtCard,{label:"الأكواد",total:SEED_DEBTS.codes.total,paidAnchor:SEED_DEBTS.codes.paidAnchor,base:SEED_DEBTS.codes.base,paidNow:paidCodes}))),
+    React.createElement("section",{className:"th-panel partners"},
+      React.createElement("div",{className:"th-panel-head"},
+        React.createElement("h2",null,React.createElement(Icon,{name:"users",size:17})," ",React.createElement("span",null,"أرباح الشركاء")," ",React.createElement("span",{className:"muted"},"— ",periodLabel)),
+        React.createElement("button",{className:"btn ghost sm",onClick:()=>setEditingPartners(v=>!v)},editingPartners?"تم":"⚙ تعديل")),
+      React.createElement("p",{className:"th-company-note"},"كل الربح بيتوزّع بالتساوي على الشركاء — كل شريك بياخذ ",sharePct,"% من ربح كل شهر."),
+      React.createElement("div",{className:"th-partner-cards"},
+        partners.map(p=>{
+          const take=partnerTake(p);
+          return React.createElement("div",{className:"th-partner",key:p.id},
+            React.createElement("div",{className:"th-partner-top"},
+              React.createElement("span",{className:"th-avatar"},(p.name||"?").trim().charAt(0)),
+              React.createElement("span",{className:"th-partner-month"},sharePct,"% من الربح")),
+            React.createElement("span",{className:"th-partner-name"},p.name),
+            React.createElement("div",{className:"th-partner-val "+(take>=0?"pos":"neg")},fmt(Math.round(take))),
+            React.createElement("span",{className:"th-partner-sub"},"نصيبه خلال ",periodLabel));
+        })),
+      editingPartners&&React.createElement("div",{className:"th-partner-editor"},
+        React.createElement("p",{className:"th-editor-hint"},"الربح بيتقسم بالتساوي على عدد الشركاء."),
+        partners.map(p=>React.createElement("div",{className:"th-partner-row",key:p.id},
+          React.createElement("input",{className:"pn",type:"text",value:p.name,onChange:e=>updPartner(p.id,"name",e.target.value),placeholder:"اسم الشريك"}),
+          React.createElement("button",{className:"del",onClick:()=>delPartner(p.id),title:"حذف"},React.createElement(Icon,{name:"trash",size:15})))),
+        React.createElement("button",{className:"btn outline sm",onClick:addPartner},"+ إضافة شريك"))),
+
+    React.createElement("section",{className:"th-panel"},
+      React.createElement("div",{className:"th-panel-head"},
+        React.createElement("h2",null,React.createElement(Icon,{name:"activity",size:17}),"الرسم البياني")),
+      React.createElement("div",{className:"th-pills"},
+        METRICS.map(m=>React.createElement("button",{key:m.key,className:"pill "+(metric===m.key?"on":""),
+          style:metric===m.key?{background:m.color,boxShadow:"0 6px 16px "+m.color+"55"}:{},
+          onClick:()=>setMetric(m.key)},m.label))),
+      React.createElement("div",{className:"th-pills years"},
+        React.createElement("button",{className:"pill ghost "+(chartRange==="recent"?"on":""),onClick:()=>setChartRange("recent")},"آخر 6 شهور"),
+        chartYears.map(y=>React.createElement("button",{key:y,className:"pill ghost "+(chartRange===y?"on":""),onClick:()=>setChartRange(y)},y))),
+      React.createElement("div",{className:"th-chart-scroll"},
+        React.createElement(MiniAreaChart,{data:chartData,color:activeMetric.color,label:activeMetric.label}))),
+
+    React.createElement("section",{className:"th-panel"},
+      React.createElement("h2",null,React.createElement(Icon,{name:"plus-circle",size:17}),"إضافة شهر جديد"),
+      React.createElement("div",{className:"th-form"},
+        React.createElement(Field,{label:"الشهر"},
+          React.createElement("select",{value:form.mon,onChange:e=>setField("mon",e.target.value)},
+            React.createElement("option",{value:""},"اختر الشهر"),
+            Array.from({length:12},(_,i)=>i+1).map(m=>React.createElement("option",{key:m,value:m},"شهر ",m)))),
+        React.createElement(Field,{label:"السنة"},
+          React.createElement("input",{type:"number",inputMode:"numeric",value:form.yr,onChange:e=>setField("yr",e.target.value),placeholder:"2026"})),
+        React.createElement(Field,{label:"الدخل الشهري",tone:"blue"},
+          React.createElement("input",{type:"number",inputMode:"numeric",value:form.income,onChange:e=>setField("income",e.target.value),placeholder:"0"})),
+        EXPENSE_FIELDS.map(f=>React.createElement(Field,{key:f.key,label:f.label,tone:"amber"},
+          React.createElement("input",{type:"number",inputMode:"numeric",value:form[f.key],onChange:e=>setField(f.key,e.target.value),placeholder:"0"}))),
+        React.createElement(Field,{label:"صافي الربح (تلقائي)",tone:"green"},
+          React.createElement("div",{className:"th-net "+(liveNet>=0?"pos":"neg")},fmt(liveNet)))),
+      React.createElement("div",{className:"th-actions"},
+        React.createElement("button",{className:"btn primary",onClick:submit},"إضافة الشهر"))),
+
+    React.createElement("section",{className:"th-panel"},
+      React.createElement("div",{className:"th-panel-head"},
+        React.createElement("h2",null,React.createElement(Icon,{name:"list",size:17}),"سجل الأشهر"),
+        React.createElement("div",{className:"th-actions inline"},
+          React.createElement("button",{className:"btn outline sm",onClick:exportCSV},"⬇ تصدير"),
+          React.createElement("button",{className:"btn outline sm danger",onClick:resetAll},"↺ استرجاع"))),
+      React.createElement("div",{className:"th-table-wrap"},
+        React.createElement("table",{className:"th-table"},
+          React.createElement("thead",null,
+            React.createElement("tr",null,
+              React.createElement("th",null,"الشهر"),
+              React.createElement("th",{className:"num"},"الدخل"),
+              EXPENSE_FIELDS.map(f=>React.createElement("th",{key:f.key,className:"num"},f.label)),
+              React.createElement("th",{className:"num"},"صافي الربح"),
+              React.createElement("th",{className:"num"},"نصيب كل شريك"),
+              React.createElement("th",null))),
+          React.createElement("tbody",null,
+            (records||[]).length===0&&React.createElement("tr",null,React.createElement("td",{colSpan:11,className:"th-empty"},"مفيش بيانات")),
+            (records||[]).map(r=>{
+              const net=netProfit(r);
+              return React.createElement("tr",{key:r.id,className:editingId===r.id?"editing":""},
+                React.createElement("td",{className:"mn"},r.month.trim()),
+                React.createElement("td",{className:"num"},fmt(r.income)),
+                EXPENSE_FIELDS.map(f=>React.createElement("td",{key:f.key,className:"num dim"},fmt(r[f.key]))),
+                React.createElement("td",{className:"num bold "+(net>=0?"pos":"neg")},fmt(net)),
+                React.createElement("td",{className:"num dim"},fmt(Math.round(monthDist(r).perPartner))),
+                React.createElement("td",{className:"ops"},
+                  React.createElement("button",{onClick:()=>edit(r),title:"تعديل"},React.createElement(Icon,{name:"pencil",size:14})),
+                  React.createElement("button",{onClick:()=>remove(r.id),title:"حذف",className:"del"},React.createElement(Icon,{name:"trash",size:14}))));
+            })),
+          (records||[]).length>0&&React.createElement("tfoot",null,
+            React.createElement("tr",null,
+              React.createElement("td",{className:"mn"},"الإجمالي (الكل)"),
+              React.createElement("td",{className:"num"},fmt((records||[]).reduce((a,r)=>a+(Number(r.income)||0),0))),
+              EXPENSE_FIELDS.map(f=>React.createElement("td",{key:f.key,className:"num dim"},fmt((records||[]).reduce((a,r)=>a+(Number(r[f.key])||0),0)))),
+              React.createElement("td",{className:"num bold pos"},fmt((records||[]).reduce((a,r)=>a+netProfit(r),0))),
+              React.createElement("td",{className:"num dim"},fmt(Math.round((records||[]).reduce((a,r)=>a+monthDist(r).perPartner,0)))),
+              React.createElement("td",null)))))),
+
+    editingId&&editForm&&React.createElement("div",{className:"th-modal-overlay",onClick:cancelEdit},
+      React.createElement("div",{className:"th-modal",onClick:e=>e.stopPropagation(),dir:"rtl"},
+        React.createElement("div",{className:"th-modal-head"},
+          React.createElement("h2",null,React.createElement(Icon,{name:"pencil",size:16}),"تعديل الشهر"),
+          React.createElement("button",{className:"th-modal-x",onClick:cancelEdit,title:"إغلاق"},"✕")),
+        React.createElement("div",{className:"th-form"},
+          React.createElement(Field,{label:"الشهر"},
+            React.createElement("select",{value:editForm.mon,onChange:e=>setEField("mon",e.target.value)},
+              React.createElement("option",{value:""},"اختر الشهر"),
+              Array.from({length:12},(_,i)=>i+1).map(m=>React.createElement("option",{key:m,value:m},"شهر ",m)))),
+          React.createElement(Field,{label:"السنة"},
+            React.createElement("input",{type:"number",inputMode:"numeric",value:editForm.yr,onChange:e=>setEField("yr",e.target.value),placeholder:"2026"})),
+          React.createElement(Field,{label:"الدخل الشهري",tone:"blue"},
+            React.createElement("input",{type:"number",inputMode:"numeric",value:editForm.income,onChange:e=>setEField("income",e.target.value),placeholder:"0"})),
+          EXPENSE_FIELDS.map(f=>React.createElement(Field,{key:f.key,label:f.label,tone:"amber"},
+            React.createElement("input",{type:"number",inputMode:"numeric",value:editForm[f.key],onChange:e=>setEField(f.key,e.target.value),placeholder:"0"}))),
+          (()=>{
+            const en=netProfit({income:editForm.income,...EXPENSE_FIELDS.reduce((a,f)=>({...a,[f.key]:editForm[f.key]}),{})});
+            return React.createElement(Field,{label:"صافي الربح (تلقائي)",tone:"green"},
+              React.createElement("div",{className:"th-net "+(en>=0?"pos":"neg")},fmt(en)));
+          })()),
+        React.createElement("div",{className:"th-actions"},
+          React.createElement("button",{className:"btn primary",onClick:saveEdit},"حفظ التعديل"),
+          React.createElement("button",{className:"btn ghost",onClick:cancelEdit},"إلغاء")))),
+    React.createElement("footer",{className:"th-foot"},"بياناتك بتتحفظ تلقائيًا على جهازك • Trio Hub"));
+}
+
+const CSS = `
+@import url('https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;600;700;800&display=swap');
+* { box-sizing: border-box; }
+.th-root { font-family: 'Rubik', system-ui, sans-serif; background: linear-gradient(180deg, #ede7ff 0%, #f3eeff 25%, #f7f4ff 55%, #faf8ff 100%); background-attachment: fixed; color: #1e1e2e; min-height: 100vh; padding: 20px clamp(12px, 4vw, 34px) 36px; max-width: 1140px; margin: 0 auto; }
+.th-center { display:flex; align-items:center; justify-content:center; min-height:60vh; }
+.th-spinner { width:34px; height:34px; border:3px solid #ddd4fb; border-top-color:#7c5cfc; border-radius:50%; animation:spin .8s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.th-header { display:flex; justify-content:space-between; align-items:center; gap:12px; margin-bottom:18px; }
+.th-hi { margin:0; font-size:22px; font-weight:800; color:#1e1e2e; }
+.th-date { margin:2px 0 0; font-size:12.5px; color:#8b86a8; font-weight:500; }
+.th-brand { display:flex; align-items:center; gap:10px; }
+.th-logo { width:46px; height:46px; border-radius:15px; background:linear-gradient(140deg,#8b6bff,#5e3df5); display:flex; align-items:center; justify-content:center; font-weight:800; font-size:16px; color:#fff; box-shadow:0 10px 22px rgba(124,92,252,.4); }
+.th-status { font-size:11.5px; color:#8b86a8; display:flex; align-items:center; gap:6px; background:#fff; padding:7px 12px; border-radius:999px; box-shadow:0 4px 14px rgba(94,61,245,.08); }
+.th-dot { width:8px; height:8px; border-radius:50%; }
+.th-dot.ok { background:#22c55e; } .th-dot.wait { background:#f59e0b; animation:pulse 1s infinite; }
+@keyframes pulse { 50% { opacity:.4; } }
+.th-hero { background:linear-gradient(150deg,#2c2742,#1e1e2e); color:#fff; border-radius:26px; padding:22px 24px; margin-bottom:16px; box-shadow:0 18px 44px rgba(30,30,46,.34); position:relative; overflow:hidden; }
+.th-hero::after { content:''; position:absolute; width:200px; height:200px; border-radius:50%; background:radial-gradient(circle,rgba(124,92,252,.45),transparent 70%); top:-70px; left:-30px; }
+.th-hero-top { display:flex; justify-content:space-between; align-items:center; font-size:13.5px; font-weight:600; color:#c9c4e0; position:relative; }
+.th-hero-tag { background:rgba(124,92,252,.25); color:#d9d0ff; padding:4px 11px; border-radius:999px; font-size:11.5px; font-weight:700; }
+.th-hero-val { font-size:40px; font-weight:800; letter-spacing:-1px; margin:8px 0 14px; font-variant-numeric:tabular-nums; position:relative; }
+.th-hero-val.neg { color:#fca5a5; }
+.th-hero-stats { display:flex; gap:14px; position:relative; }
+.th-hero-stats > div { flex:1; display:flex; flex-direction:column; gap:2px; padding-right:14px; border-right:1px solid rgba(255,255,255,.12); }
+.th-hero-stats > div:last-child { border-right:none; }
+.th-hero-stats b { font-size:16px; font-weight:800; font-variant-numeric:tabular-nums; }
+.th-hero-stats b.cmp { display:flex; align-items:center; gap:4px; }
+.th-hero-stats b.up { color:#4ade80; } .th-hero-stats b.down { color:#fca5a5; } .th-hero-stats b.flat { color:#a59fc4; }
+.th-hero-stats span { font-size:11.5px; color:#a59fc4; font-weight:500; }
+.th-period { display:flex; align-items:center; gap:11px; background:#fff; border-radius:18px; padding:13px 15px; margin-bottom:16px; box-shadow:0 6px 18px rgba(94,61,245,.07); flex-wrap:wrap; }
+.th-period > label { font-size:13.5px; font-weight:700; color:#5b5476; white-space:nowrap; }
+.th-picker { position:relative; flex:1; min-width:170px; }
+.th-picker-btn { width:100%; display:flex; justify-content:space-between; align-items:center; font-family:inherit; font-size:14.5px; font-weight:700; color:#1e1e2e; background:#f3eeff; border:1.5px solid #e4dbff; border-radius:13px; padding:11px 14px; cursor:pointer; }
+.th-picker-btn:hover { border-color:#a78bff; } .th-picker-btn .caret { color:#7c5cfc; }
+.th-picker-label { display:flex; align-items:center; gap:8px; }
+.th-picker-label svg { color:#7c5cfc; }
+.th-period-count { font-size:12.5px; font-weight:700; color:#7c5cfc; background:#f3eeff; padding:8px 13px; border-radius:999px; white-space:nowrap; }
+.th-pick-backdrop { position:fixed; inset:0; z-index:40; }
+.th-pick-pop { position:absolute; top:calc(100% + 8px); right:0; left:0; z-index:50; background:#fff; border-radius:18px; box-shadow:0 18px 44px rgba(30,30,46,.2); padding:14px; border:1px solid #efeafd; }
+.th-pick-all { width:100%; font-family:inherit; font-weight:700; font-size:13.5px; padding:10px; border-radius:12px; border:none; cursor:pointer; background:#f3eeff; color:#5b5476; margin-bottom:12px; }
+.th-pick-all.on { background:#7c5cfc; color:#fff; }
+.th-pick-ynav { display:flex; align-items:center; justify-content:space-between; margin-bottom:12px; }
+.th-pick-ynav span { font-size:17px; font-weight:800; color:#1e1e2e; }
+.th-pick-ynav button { width:36px; height:36px; border-radius:11px; border:none; background:#f3eeff; color:#7c5cfc; font-size:18px; font-weight:800; cursor:pointer; }
+.th-pick-ynav button:hover { background:#e9e0ff; }
+.th-pick-yearall { width:100%; font-family:inherit; font-weight:700; font-size:13.5px; padding:10px; border-radius:12px; border:none; cursor:pointer; background:#ede7ff; color:#5e3df5; margin-bottom:12px; }
+.th-pick-yearall.on { background:#7c5cfc; color:#fff; }
+.th-pick-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:8px; }
+.th-pick-m { position:relative; aspect-ratio:1.4; border:none; border-radius:12px; background:#f6f3ff; color:#5b5476; font-family:inherit; font-size:15px; font-weight:700; cursor:pointer; transition:.12s; }
+.th-pick-m:hover:not(.off) { background:#e9e0ff; }
+.th-pick-m.on { background:#7c5cfc; color:#fff; box-shadow:0 6px 16px rgba(124,92,252,.4); }
+.th-pick-m.off { color:#cfc9e4; cursor:not-allowed; background:#faf8ff; }
+.th-pick-m i { position:absolute; bottom:6px; left:50%; transform:translateX(-50%); width:5px; height:5px; border-radius:50%; background:#7c5cfc; }
+.th-pick-m.on i { background:#fff; }
+.th-pick-hint { font-size:11px; color:#a59fc4; text-align:center; margin:11px 0 2px; }
+.th-cards { display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:12px; margin-bottom:16px; }
+.th-card { background:#fff; border-radius:20px; padding:16px; display:flex; flex-direction:column; gap:5px; box-shadow:0 6px 18px rgba(94,61,245,.06); }
+.th-card-ico { width:38px; height:38px; border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:18px; margin-bottom:5px; background:#f3eeff; color:#7c5cfc; }
+.th-card.amber .th-card-ico { background:#fff3e0; color:#f59e0b; } .th-card.rose .th-card-ico { background:#fdecf3; color:#e84d8a; } .th-card.teal .th-card-ico { background:#e3f8f4; color:#0d9488; }
+.th-card-label { font-size:12.5px; color:#8b86a8; font-weight:600; }
+.th-card-value { font-size:22px; font-weight:800; letter-spacing:-.5px; font-variant-numeric:tabular-nums; color:#1e1e2e; }
+.th-panel { background:#fff; border-radius:22px; padding:20px clamp(14px,2.4vw,24px); margin-bottom:16px; box-shadow:0 6px 18px rgba(94,61,245,.06); }
+.th-panel h2 { margin:0 0 16px; font-size:16px; font-weight:800; color:#1e1e2e; display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+.th-panel h2 svg { color:#7c5cfc; flex-shrink:0; }
+.th-modal-head h2 svg { color:#7c5cfc; }
+.th-panel h2 .muted { color:#8b86a8; font-weight:600; font-size:14px; }
+.th-panel-head { display:flex; justify-content:space-between; align-items:center; gap:10px; flex-wrap:wrap; margin-bottom:14px; }
+.th-panel-head h2 { margin:0; }
+.partners { background:linear-gradient(160deg,#faf8ff,#fff); }
+.th-debts { display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:12px; }
+.th-debt { background:#f6f3ff; border-radius:18px; padding:16px; display:flex; flex-direction:column; gap:10px; }
+.th-debt-name { font-weight:800; font-size:15px; color:#1e1e2e; }
+.th-debt-stats { display:flex; gap:12px; }
+.th-debt-stats > div { flex:1; display:flex; flex-direction:column; gap:1px; }
+.th-debt-stats span { font-size:11px; color:#8b86a8; font-weight:500; }
+.th-debt-stats b { font-size:17px; font-weight:800; font-variant-numeric:tabular-nums; }
+.th-debt-stats b.rem { color:#dc2626; } .th-debt-stats b.done { color:#16a34a; }
+.th-debt-bar { height:8px; background:#e4dbff; border-radius:999px; overflow:hidden; }
+.th-debt-bar > div { height:100%; background:linear-gradient(90deg,#8b6bff,#5e3df5); border-radius:999px; transition:width .3s; }
+.th-debt-pct { font-size:11px; color:#8b86a8; font-weight:600; }
+.th-company-note { font-size:11.5px; color:#8b86a8; margin:0 0 14px; line-height:1.6; }
+.th-partner-cards { display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:12px; }
+.th-partner { border-radius:18px; padding:15px; background:#f6f3ff; }
+.th-partner-top { display:flex; justify-content:space-between; align-items:center; margin-bottom:9px; }
+.th-avatar { width:38px; height:38px; border-radius:50%; background:linear-gradient(140deg,#8b6bff,#5e3df5); color:#fff; font-weight:800; font-size:17px; display:flex; align-items:center; justify-content:center; }
+.th-partner-month { font-size:11px; font-weight:700; color:#7c5cfc; background:#ede7ff; padding:3px 9px; border-radius:999px; white-space:nowrap; }
+.th-partner-name { font-weight:700; font-size:14px; color:#41527a; }
+.th-partner-val { font-size:22px; font-weight:800; font-variant-numeric:tabular-nums; margin-top:3px; }
+.th-partner-val.pos { color:#16a34a; } .th-partner-val.neg { color:#dc2626; }
+.th-partner-sub { font-size:11.5px; color:#8b86a8; }
+.th-partner-editor { margin-top:15px; border-top:1px solid #efeafd; padding-top:13px; display:flex; flex-direction:column; gap:9px; }
+.th-editor-hint { font-size:12px; color:#8b86a8; margin:0 0 4px; }
+.th-partner-row { display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
+.th-partner-row .pn { flex:1; min-width:120px; font-family:inherit; font-size:14px; font-weight:600; padding:10px 12px; border:1.5px solid #e4dbff; border-radius:12px; outline:none; background:#faf8ff; }
+.th-partner-row .pn:focus { border-color:#7c5cfc; }
+.th-partner-row .del { width:38px; height:38px; border:none; border-radius:12px; background:#fdeef0; color:#dc2626; cursor:pointer; flex-shrink:0; display:flex; align-items:center; justify-content:center; }
+.th-pills { display:flex; gap:8px; margin-bottom:10px; flex-wrap:wrap; }
+.th-pills.years { margin-bottom:16px; }
+.pill { font-family:inherit; font-size:13.5px; font-weight:700; padding:9px 18px; border-radius:999px; border:none; cursor:pointer; background:#f3eeff; color:#7a72a0; transition:.15s; }
+.pill:hover { background:#e9e0ff; } .pill.on { color:#fff; }
+.pill.ghost { font-size:13px; padding:8px 15px; background:#f6f3ff; }
+.pill.ghost.on { background:#1e1e2e; color:#fff; }
+.th-form { display:grid; grid-template-columns:repeat(auto-fit,minmax(145px,1fr)); gap:13px; }
+.th-field { display:flex; flex-direction:column; gap:6px; }
+.th-field-label { font-size:12.5px; color:#52638a; font-weight:600; }
+.th-field-hint { font-size:11px; color:#9aa7c2; }
+.th-field input, .th-field select { background:#faf8ff; border:1.5px solid #e4dbff; border-radius:13px; padding:12px 13px; color:#1e1e2e; font-family:inherit; font-size:15px; font-weight:700; outline:none; transition:.15s; width:100%; cursor:pointer; }
+.th-field input:focus, .th-field select:focus { border-color:#7c5cfc; background:#fff; box-shadow:0 0 0 4px rgba(124,92,252,.12); }
+.th-net { background:#e7f9ee; border:1.5px solid #bbecca; border-radius:13px; padding:12px 13px; font-size:17px; font-weight:800; font-variant-numeric:tabular-nums; color:#16a34a; }
+.th-net.neg { background:#fdeef0; border-color:#f8c9cf; color:#dc2626; }
+.th-actions { display:flex; gap:10px; margin-top:16px; flex-wrap:wrap; }
+.th-actions.inline { margin-top:0; }
+.btn { font-family:inherit; font-weight:700; font-size:14px; border-radius:14px; padding:12px 22px; cursor:pointer; border:none; transition:.15s; }
+.btn.sm { font-size:13px; padding:9px 15px; border-radius:12px; }
+.btn.primary { background:linear-gradient(135deg,#8b6bff,#5e3df5); color:#fff; box-shadow:0 8px 20px rgba(124,92,252,.35); }
+.btn.primary:hover { filter:brightness(1.05); transform:translateY(-1px); }
+.btn.ghost { background:#f3eeff; color:#5b5476; } .btn.ghost:hover { background:#e9e0ff; }
+.btn.outline { background:#f6f3ff; color:#5b5476; } .btn.outline:hover { background:#ede7ff; }
+.btn.outline.danger { color:#dc2626; background:#fdeef0; } .btn.outline.danger:hover { background:#fbdde1; }
+.th-table-wrap { overflow-x:auto; border-radius:16px; border:1px solid #efeafd; -webkit-overflow-scrolling:touch; }
+.th-table { width:100%; border-collapse:collapse; font-size:13.5px; min-width:840px; }
+.th-table th { background:#f6f3ff; padding:12px 13px; text-align:right; font-weight:700; color:#8b86a8; font-size:12px; white-space:nowrap; }
+.th-table th.num { text-align:left; }
+.th-table td { padding:11px 13px; border-top:1px solid #f3f0fc; white-space:nowrap; }
+.th-table tbody tr:hover { background:#faf8ff; }
+.th-table tr.editing { background:#f3eeff; }
+.th-table .num { text-align:left; font-variant-numeric:tabular-nums; }
+.th-table .mn { font-weight:700; color:#1e1e2e; }
+.th-table .dim { color:#8b86a8; } .th-table .bold { font-weight:800; }
+.th-table .pos { color:#16a34a; } .th-table .neg { color:#dc2626; }
+.th-table tfoot td { background:#f6f3ff; font-weight:800; border-top:2px solid #e4dbff; }
+.th-empty { text-align:center; color:#a59fc4; padding:28px; }
+.ops { display:flex; gap:6px; }
+.ops button { background:#f3eeff; border:none; width:32px; height:32px; border-radius:10px; cursor:pointer; color:#5b5476; transition:.15s; display:flex; align-items:center; justify-content:center; }
+.ops button:hover { background:#e9e0ff; }
+.ops button.del:hover { background:#fdeef0; color:#dc2626; }
+.th-chart-scroll { overflow-x:auto; -webkit-overflow-scrolling:touch; }
+.th-chart-empty { padding:40px 16px; text-align:center; color:#a59fc4; font-size:13px; }
+.th-foot { text-align:center; font-size:11.5px; color:#a59fc4; margin-top:6px; }
+.th-modal-overlay { position:fixed; inset:0; z-index:100; background:rgba(30,30,46,.5); backdrop-filter:blur(3px); display:flex; align-items:center; justify-content:center; padding:16px; animation:fade .15s ease; }
+@keyframes fade { from { opacity:0; } }
+.th-modal { background:#fff; border-radius:24px; padding:22px clamp(16px,3vw,26px); width:100%; max-width:560px; max-height:90vh; overflow-y:auto; box-shadow:0 24px 60px rgba(30,30,46,.4); animation:pop .18s cubic-bezier(.2,.8,.3,1.2); }
+@keyframes pop { from { transform:scale(.94); opacity:0; } }
+.th-modal-head { display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; }
+.th-modal-head h2 { margin:0; font-size:17px; font-weight:800; color:#1e1e2e; display:flex; align-items:center; gap:8px; }
+.th-modal-x { width:34px; height:34px; border:none; border-radius:11px; background:#f3eeff; color:#5b5476; font-size:15px; cursor:pointer; flex-shrink:0; }
+.th-modal-x:hover { background:#e9e0ff; }
+@media (max-width:600px) {
+  .th-root { padding:16px 12px 28px; }
+  .th-hi { font-size:19px; } .th-hero-val { font-size:32px; }
+  .th-cards { grid-template-columns:repeat(2,1fr); gap:10px; }
+  .th-card-value { font-size:19px; }
+  .th-partner-cards { grid-template-columns:repeat(2,1fr); }
+  .th-form { grid-template-columns:repeat(2,1fr); }
+  .th-panel { padding:16px 14px; }
+}
+`;
+
+ReactDOM.createRoot(document.getElementById('root')).render(React.createElement(App,null));
+} catch(e) {
+  document.getElementById('root').innerHTML = '<div style="font-family:sans-serif;padding:40px;text-align:center;color:#dc2626" dir="rtl">حصل خطأ: ' + (e && e.message ? e.message : e) + '</div>';
+  console.error(e);
+}
+</script>
+
+</body>
+</html>
