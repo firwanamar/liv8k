@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>ÃÂ­ÃÂ³ÃÂ§ÃÂ¨ÃÂ§ÃÂª Trio Hub</title>
+<title>ÃÂÃÂ­ÃÂÃÂ³ÃÂÃÂ§ÃÂÃÂ¨ÃÂÃÂ§ÃÂÃÂª Trio Hub</title>
 <style>html,body{margin:0;padding:0}body{background:#ede7ff;-webkit-text-size-adjust:100%}</style>
 <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
 <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
@@ -13,53 +13,52 @@
 </head>
 <body>
 <div id="root"></div>
-<script>var Recharts = window.Recharts;</script>
 <script type="text/babel" data-presets="react">
 
 const { useState, useEffect, useMemo, useRef } = React;
-const { Area, AreaChart, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LabelList } = Recharts;
+const { Area, AreaChart, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LabelList } = window.Recharts;
 const storage = { get:(k)=>{try{const v=localStorage.getItem(k);return v==null?null:{value:v};}catch(e){return null;}}, set:(k,v)=>{try{localStorage.setItem(k,v);}catch(e){}} };
 const ICONS = {"wallet":"<path d=\"M21 12V7H5a2 2 0 0 1 0-4h14v4\"/><path d=\"M3 5v14a2 2 0 0 0 2 2h16v-5\"/><path d=\"M18 12a2 2 0 0 0 0 4h4v-4Z\"/>","trending-down":"<polyline points=\"22 17 13.5 8.5 8.5 13.5 2 7\"/><polyline points=\"16 17 22 17 22 11\"/>","trending-up":"<polyline points=\"22 7 13.5 15.5 8.5 10.5 2 17\"/><polyline points=\"16 7 22 7 22 13\"/>","landmark":"<line x1=\"3\" x2=\"21\" y1=\"22\" y2=\"22\"/><line x1=\"6\" x2=\"6\" y1=\"18\" y2=\"11\"/><line x1=\"10\" x2=\"10\" y1=\"18\" y2=\"11\"/><line x1=\"14\" x2=\"14\" y1=\"18\" y2=\"11\"/><line x1=\"18\" x2=\"18\" y1=\"18\" y2=\"11\"/><polygon points=\"12 2 20 7 4 7\"/>","code":"<path d=\"m18 16 4-4-4-4\"/><path d=\"m6 8-4 4 4 4\"/><path d=\"m14.5 4-5 16\"/>","bar-chart":"<path d=\"M3 3v18h18\"/><path d=\"M18 17V9\"/><path d=\"M13 17V5\"/><path d=\"M8 17v-3\"/>","calendar":"<path d=\"M8 2v4\"/><path d=\"M16 2v4\"/><rect width=\"18\" height=\"18\" x=\"3\" y=\"4\" rx=\"2\"/><path d=\"M3 10h18\"/>","users":"<path d=\"M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2\"/><circle cx=\"9\" cy=\"7\" r=\"4\"/><path d=\"M22 21v-2a4 4 0 0 0-3-3.87\"/><path d=\"M16 3.13a4 4 0 0 1 0 7.75\"/>","plus-circle":"<circle cx=\"12\" cy=\"12\" r=\"10\"/><path d=\"M8 12h8\"/><path d=\"M12 8v8\"/>","list":"<path d=\"m3 17 2 2 4-4\"/><path d=\"m3 7 2 2 4-4\"/><path d=\"M13 6h8\"/><path d=\"M13 12h8\"/><path d=\"M13 18h8\"/>","pencil":"<path d=\"M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z\"/><path d=\"m15 5 4 4\"/>","activity":"<path d=\"M22 12h-2.48a2 2 0 0 0-1.93 1.46l-2.35 8.36a.25.25 0 0 1-.48 0L9.24 2.18a.25.25 0 0 0-.48 0l-2.35 8.36A2 2 0 0 1 4.49 12H2\"/>","trash":"<path d=\"M3 6h18\"/><path d=\"M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2\"/><line x1=\"10\" x2=\"10\" y1=\"11\" y2=\"17\"/><line x1=\"14\" x2=\"14\" y1=\"11\" y2=\"17\"/>"};
 function Icon({ name, size = 18 }) { return <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.2} strokeLinecap="round" strokeLinejoin="round" dangerouslySetInnerHTML={{ __html: ICONS[name] || "" }} />; }
 
 
 const EXPENSE_FIELDS = [
-  { key: "ads", label: "ÃÂ±ÃÂ³ÃÂÃÂ ÃÂ§ÃÂÃÂ¥ÃÂ¹ÃÂÃÂ§ÃÂÃÂ§ÃÂª" },
-  { key: "salaries", label: "ÃÂ±ÃÂÃÂ§ÃÂªÃÂ¨ ÃÂ§ÃÂÃÂÃÂÃÂ¸ÃÂÃÂÃÂ" },
-  { key: "whatsapp", label: "ÃÂ§ÃÂ´ÃÂªÃÂ±ÃÂ§ÃÂ ÃÂ§ÃÂÃÂÃÂ§ÃÂªÃÂ³ ÃÂ§ÃÂ¨" },
-  { key: "loan", label: "ÃÂÃÂ³ÃÂ· ÃÂ§ÃÂÃÂÃÂ±ÃÂ¶" },
-  { key: "codes", label: "ÃÂ¯ÃÂÃÂ¹ÃÂ© ÃÂ§ÃÂÃÂ£ÃÂÃÂÃÂ§ÃÂ¯" },
-  { key: "emergency", label: "ÃÂ¯ÃÂÃÂ¹ÃÂ§ÃÂª ÃÂ·ÃÂ§ÃÂ±ÃÂ¦ÃÂ©" },
+  { key: "ads", label: "ÃÂÃÂ±ÃÂÃÂ³ÃÂÃÂÃÂÃÂ ÃÂÃÂ§ÃÂÃÂÃÂÃÂ¥ÃÂÃÂ¹ÃÂÃÂÃÂÃÂ§ÃÂÃÂÃÂÃÂ§ÃÂÃÂª" },
+  { key: "salaries", label: "ÃÂÃÂ±ÃÂÃÂÃÂÃÂ§ÃÂÃÂªÃÂÃÂ¨ ÃÂÃÂ§ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ¸ÃÂÃÂÃÂÃÂÃÂÃÂ" },
+  { key: "whatsapp", label: "ÃÂÃÂ§ÃÂÃÂ´ÃÂÃÂªÃÂÃÂ±ÃÂÃÂ§ÃÂÃÂ ÃÂÃÂ§ÃÂÃÂÃÂÃÂÃÂÃÂ§ÃÂÃÂªÃÂÃÂ³ ÃÂÃÂ§ÃÂÃÂ¨" },
+  { key: "loan", label: "ÃÂÃÂÃÂÃÂ³ÃÂÃÂ· ÃÂÃÂ§ÃÂÃÂÃÂÃÂÃÂÃÂ±ÃÂÃÂ¶" },
+  { key: "codes", label: "ÃÂÃÂ¯ÃÂÃÂÃÂÃÂ¹ÃÂÃÂ© ÃÂÃÂ§ÃÂÃÂÃÂÃÂ£ÃÂÃÂÃÂÃÂÃÂÃÂ§ÃÂÃÂ¯" },
+  { key: "emergency", label: "ÃÂÃÂ¯ÃÂÃÂÃÂÃÂ¹ÃÂÃÂ§ÃÂÃÂª ÃÂÃÂ·ÃÂÃÂ§ÃÂÃÂ±ÃÂÃÂ¦ÃÂÃÂ©" },
 ];
 const ALL_FIELDS = ["income", ...EXPENSE_FIELDS.map((f) => f.key)];
 const DEBT_KEYS = ["loan", "codes"];
 const OP_KEYS = EXPENSE_FIELDS.map((f) => f.key).filter((k) => !DEBT_KEYS.includes(k));
 
 const SEED = [
-  { month: "ÃÂ´ÃÂÃÂ± 10 - 2024", income: 128000, ads: 48000, salaries: 10000, whatsapp: 2000, loan: 20000, codes: 0,     emergency: 0 },
-  { month: "ÃÂ´ÃÂÃÂ± 9 - 2024",  income: 133000, ads: 42000, salaries: 10000, whatsapp: 0,    loan: 20000, codes: 0,     emergency: 0 },
-  { month: "ÃÂ´ÃÂÃÂ± 11 - 2024", income: 133000, ads: 37000, salaries: 10000, whatsapp: 2000, loan: 20000, codes: 0,     emergency: 14000 },
-  { month: "ÃÂ´ÃÂÃÂ± 12 - 2024", income: 100000, ads: 27000, salaries: 10000, whatsapp: 2000, loan: 20000, codes: 0,     emergency: 0 },
-  { month: "ÃÂ´ÃÂÃÂ± 1 - 2025",  income: 116000, ads: 31000, salaries: 10000, whatsapp: 2000, loan: 20000, codes: 0,     emergency: 5800 },
-  { month: "ÃÂ´ÃÂÃÂ± 2 - 2025",  income: 139000, ads: 41000, salaries: 10000, whatsapp: 2000, loan: 20000, codes: 0,     emergency: 0 },
-  { month: "ÃÂ´ÃÂÃÂ± 3 - 2025",  income: 151000, ads: 45000, salaries: 11000, whatsapp: 2200, loan: 20000, codes: 0,     emergency: 0 },
-  { month: "ÃÂ´ÃÂÃÂ± 4 - 2025",  income: 151000, ads: 39000, salaries: 10000, whatsapp: 2200, loan: 20000, codes: 0,     emergency: 0 },
-  { month: "ÃÂ´ÃÂÃÂ± 6 - 2025",  income: 130000, ads: 34000, salaries: 10000, whatsapp: 2000, loan: 20000, codes: 15000, emergency: 0 },
-  { month: "ÃÂ´ÃÂÃÂ± 7 - 2025",  income: 100000, ads: 32000, salaries: 10000, whatsapp: 2000, loan: 20000, codes: 0,     emergency: 0 },
-  { month: "ÃÂ´ÃÂÃÂ± 8 - 2025",  income: 200000, ads: 60000, salaries: 10000, whatsapp: 2000, loan: 20000, codes: 15000, emergency: 3300 },
-  { month: "ÃÂ´ÃÂÃÂ± 9 - 2025",  income: 215000, ads: 52000, salaries: 10000, whatsapp: 2000, loan: 20000, codes: 15000, emergency: 0 },
-  { month: "ÃÂ´ÃÂÃÂ± 10 - 2025", income: 170000, ads: 45000, salaries: 10000, whatsapp: 2000, loan: 20000, codes: 15000, emergency: 0 },
-  { month: "ÃÂ´ÃÂÃÂ± 11 - 2025", income: 125000, ads: 45000, salaries: 10000, whatsapp: 2000, loan: 0,     codes: 0,     emergency: 0 },
-  { month: "ÃÂ´ÃÂÃÂ± 12 - 2025", income: 130000, ads: 32000, salaries: 10000, whatsapp: 2000, loan: 20000, codes: 15000, emergency: 0 },
-  { month: "ÃÂ´ÃÂÃÂ± 1 - 2026",  income: 144000, ads: 35000, salaries: 10000, whatsapp: 2000, loan: 20000, codes: 15000, emergency: 29000 },
-  { month: "ÃÂ´ÃÂÃÂ± 2 - 2026",  income: 92000,  ads: 0,     salaries: 6500,  whatsapp: 0,    loan: 0,     codes: 15000, emergency: 0 },
-  { month: "ÃÂ´ÃÂÃÂ± 3 - 2026",  income: 144000, ads: 35000, salaries: 10000, whatsapp: 2000, loan: 20000, codes: 15000, emergency: 0 },
-  { month: "ÃÂ´ÃÂÃÂ± 4 - 2026",  income: 190000, ads: 46000, salaries: 6000,  whatsapp: 0,    loan: 20000, codes: 15000, emergency: 16000 },
-  { month: "ÃÂ´ÃÂÃÂ± 5 - 2026",  income: 185000, ads: 41250, salaries: 12500, whatsapp: 0,    loan: 20000, codes: 15000, emergency: 11250 },
+  { month: "ÃÂÃÂ´ÃÂÃÂÃÂÃÂ± 10 - 2024", income: 128000, ads: 48000, salaries: 10000, whatsapp: 2000, loan: 20000, codes: 0,     emergency: 0 },
+  { month: "ÃÂÃÂ´ÃÂÃÂÃÂÃÂ± 9 - 2024",  income: 133000, ads: 42000, salaries: 10000, whatsapp: 0,    loan: 20000, codes: 0,     emergency: 0 },
+  { month: "ÃÂÃÂ´ÃÂÃÂÃÂÃÂ± 11 - 2024", income: 133000, ads: 37000, salaries: 10000, whatsapp: 2000, loan: 20000, codes: 0,     emergency: 14000 },
+  { month: "ÃÂÃÂ´ÃÂÃÂÃÂÃÂ± 12 - 2024", income: 100000, ads: 27000, salaries: 10000, whatsapp: 2000, loan: 20000, codes: 0,     emergency: 0 },
+  { month: "ÃÂÃÂ´ÃÂÃÂÃÂÃÂ± 1 - 2025",  income: 116000, ads: 31000, salaries: 10000, whatsapp: 2000, loan: 20000, codes: 0,     emergency: 5800 },
+  { month: "ÃÂÃÂ´ÃÂÃÂÃÂÃÂ± 2 - 2025",  income: 139000, ads: 41000, salaries: 10000, whatsapp: 2000, loan: 20000, codes: 0,     emergency: 0 },
+  { month: "ÃÂÃÂ´ÃÂÃÂÃÂÃÂ± 3 - 2025",  income: 151000, ads: 45000, salaries: 11000, whatsapp: 2200, loan: 20000, codes: 0,     emergency: 0 },
+  { month: "ÃÂÃÂ´ÃÂÃÂÃÂÃÂ± 4 - 2025",  income: 151000, ads: 39000, salaries: 10000, whatsapp: 2200, loan: 20000, codes: 0,     emergency: 0 },
+  { month: "ÃÂÃÂ´ÃÂÃÂÃÂÃÂ± 6 - 2025",  income: 130000, ads: 34000, salaries: 10000, whatsapp: 2000, loan: 20000, codes: 15000, emergency: 0 },
+  { month: "ÃÂÃÂ´ÃÂÃÂÃÂÃÂ± 7 - 2025",  income: 100000, ads: 32000, salaries: 10000, whatsapp: 2000, loan: 20000, codes: 0,     emergency: 0 },
+  { month: "ÃÂÃÂ´ÃÂÃÂÃÂÃÂ± 8 - 2025",  income: 200000, ads: 60000, salaries: 10000, whatsapp: 2000, loan: 20000, codes: 15000, emergency: 3300 },
+  { month: "ÃÂÃÂ´ÃÂÃÂÃÂÃÂ± 9 - 2025",  income: 215000, ads: 52000, salaries: 10000, whatsapp: 2000, loan: 20000, codes: 15000, emergency: 0 },
+  { month: "ÃÂÃÂ´ÃÂÃÂÃÂÃÂ± 10 - 2025", income: 170000, ads: 45000, salaries: 10000, whatsapp: 2000, loan: 20000, codes: 15000, emergency: 0 },
+  { month: "ÃÂÃÂ´ÃÂÃÂÃÂÃÂ± 11 - 2025", income: 125000, ads: 45000, salaries: 10000, whatsapp: 2000, loan: 0,     codes: 0,     emergency: 0 },
+  { month: "ÃÂÃÂ´ÃÂÃÂÃÂÃÂ± 12 - 2025", income: 130000, ads: 32000, salaries: 10000, whatsapp: 2000, loan: 20000, codes: 15000, emergency: 0 },
+  { month: "ÃÂÃÂ´ÃÂÃÂÃÂÃÂ± 1 - 2026",  income: 144000, ads: 35000, salaries: 10000, whatsapp: 2000, loan: 20000, codes: 15000, emergency: 29000 },
+  { month: "ÃÂÃÂ´ÃÂÃÂÃÂÃÂ± 2 - 2026",  income: 92000,  ads: 0,     salaries: 6500,  whatsapp: 0,    loan: 0,     codes: 15000, emergency: 0 },
+  { month: "ÃÂÃÂ´ÃÂÃÂÃÂÃÂ± 3 - 2026",  income: 144000, ads: 35000, salaries: 10000, whatsapp: 2000, loan: 20000, codes: 15000, emergency: 0 },
+  { month: "ÃÂÃÂ´ÃÂÃÂÃÂÃÂ± 4 - 2026",  income: 190000, ads: 46000, salaries: 6000,  whatsapp: 0,    loan: 20000, codes: 15000, emergency: 16000 },
+  { month: "ÃÂÃÂ´ÃÂÃÂÃÂÃÂ± 5 - 2026",  income: 185000, ads: 41250, salaries: 12500, whatsapp: 0,    loan: 20000, codes: 15000, emergency: 11250 },
 ].map((r, i) => ({ id: `seed-${i}`, ...r }));
 
 const SEED_MONTHS = Object.fromEntries(SEED.map((r) => [r.id, r.month]));
-const SEED_PARTNERS = [{ id: "p1", name: "ÃÂ£ÃÂ­ÃÂÃÂ¯", salary: 20000 }, { id: "p2", name: "ÃÂ·ÃÂÃÂ§ÃÂ", salary: 20000 }];
+const SEED_PARTNERS = [{ id: "p1", name: "ÃÂÃÂ£ÃÂÃÂ­ÃÂÃÂÃÂÃÂ¯", salary: 20000 }, { id: "p2", name: "ÃÂÃÂ·ÃÂÃÂÃÂÃÂ§ÃÂÃÂ", salary: 20000 }];
 const seedPaid = (key) => SEED.reduce((a, r) => a + (Number(r[key]) || 0), 0);
 const SEED_DEBTS = { loan: { total: 500000, paidAnchor: 320000, base: seedPaid("loan") }, codes: { total: 350000, paidAnchor: 165000, base: seedPaid("codes") } };
 
@@ -69,9 +68,9 @@ const PARTNERS_KEY = "triohub_partners_v1";
 
 const CARD_ICONS = { blue: "wallet", amber: "trending-down", purple: "landmark", rose: "code", teal: "bar-chart" };
 const METRICS = [
-  { key: "net", label: "ÃÂµÃÂ§ÃÂÃÂ ÃÂ§ÃÂÃÂ±ÃÂ¨ÃÂ­", color: "#7c5cfc" },
-  { key: "income", label: "ÃÂ§ÃÂÃÂ¯ÃÂ®ÃÂ", color: "#22c55e" },
-  { key: "expenses", label: "ÃÂ§ÃÂÃÂÃÂµÃÂ§ÃÂ±ÃÂÃÂ", color: "#f59e0b" },
+  { key: "net", label: "ÃÂÃÂµÃÂÃÂ§ÃÂÃÂÃÂÃÂ ÃÂÃÂ§ÃÂÃÂÃÂÃÂ±ÃÂÃÂ¨ÃÂÃÂ­", color: "#7c5cfc" },
+  { key: "income", label: "ÃÂÃÂ§ÃÂÃÂÃÂÃÂ¯ÃÂÃÂ®ÃÂÃÂ", color: "#22c55e" },
+  { key: "expenses", label: "ÃÂÃÂ§ÃÂÃÂÃÂÃÂÃÂÃÂµÃÂÃÂ§ÃÂÃÂ±ÃÂÃÂÃÂÃÂ", color: "#f59e0b" },
 ];
 
 const sumExpenses = (r) => EXPENSE_FIELDS.reduce((a, f) => a + (Number(r[f.key]) || 0), 0);
@@ -103,24 +102,24 @@ function MonthPicker({ records, period, onChange }) {
   const [open, setOpen] = useState(false);
   const years = [...new Set(records.map((r) => parseMY(r.month).y).filter(Boolean))].sort((a, b) => a - b);
   const [py, setPy] = useState(years[years.length - 1] || new Date().getFullYear());
-  const current = period === "all" ? "ÃÂÃÂ ÃÂ§ÃÂÃÂÃÂ¯ÃÂ©" : (typeof period === "string" && period.startsWith("year:")) ? `ÃÂ³ÃÂÃÂ© ${period.slice(5)}` : records.find((r) => r.id === period)?.month?.trim() || "ÃÂ§ÃÂ®ÃÂªÃÂ±";
+  const current = period === "all" ? "ÃÂÃÂÃÂÃÂ ÃÂÃÂ§ÃÂÃÂÃÂÃÂÃÂÃÂ¯ÃÂÃÂ©" : (typeof period === "string" && period.startsWith("year:")) ? `ÃÂÃÂ³ÃÂÃÂÃÂÃÂ© ${period.slice(5)}` : records.find((r) => r.id === period)?.month?.trim() || "ÃÂÃÂ§ÃÂÃÂ®ÃÂÃÂªÃÂÃÂ±";
   const recForM = (m) => records.find((r) => { const p = parseMY(r.month); return p.y === py && p.m === m; });
   return (
     <div className="th-picker">
       <button className="th-picker-btn" onClick={() => setOpen((o) => !o)}>
-        <span className="th-picker-label"><Icon name="calendar" size={17} strokeWidth={2.2} /> {current}</span><span className="caret">Ã¢ÂÂ¾</span>
+        <span className="th-picker-label"><Icon name="calendar" size={17} strokeWidth={2.2} /> {current}</span><span className="caret">ÃÂ¢ÃÂÃÂ¾</span>
       </button>
       {open && (
         <>
           <div className="th-pick-backdrop" onClick={() => setOpen(false)} />
           <div className="th-pick-pop">
-            <button className={`th-pick-all ${period === "all" ? "on" : ""}`} onClick={() => { onChange("all"); setOpen(false); }}>ÃÂÃÂ ÃÂ§ÃÂÃÂÃÂ¯ÃÂ© (ÃÂÃÂ ÃÂ§ÃÂÃÂ£ÃÂ´ÃÂÃÂ±)</button>
+            <button className={`th-pick-all ${period === "all" ? "on" : ""}`} onClick={() => { onChange("all"); setOpen(false); }}>ÃÂÃÂÃÂÃÂ ÃÂÃÂ§ÃÂÃÂÃÂÃÂÃÂÃÂ¯ÃÂÃÂ© (ÃÂÃÂÃÂÃÂ ÃÂÃÂ§ÃÂÃÂÃÂÃÂ£ÃÂÃÂ´ÃÂÃÂÃÂÃÂ±)</button>
             <div className="th-pick-ynav">
-              <button onClick={() => setPy((y) => y - 1)}>Ã¢ÂÂ¹</button>
+              <button onClick={() => setPy((y) => y - 1)}>ÃÂ¢ÃÂÃÂ¹</button>
               <span>{py}</span>
-              <button onClick={() => setPy((y) => y + 1)}>Ã¢ÂÂº</button>
+              <button onClick={() => setPy((y) => y + 1)}>ÃÂ¢ÃÂÃÂº</button>
             </div>
-            <button className={`th-pick-yearall ${period === `year:${py}` ? "on" : ""}`} onClick={() => { onChange(`year:${py}`); setOpen(false); }}>ÃÂ¹ÃÂ±ÃÂ¶ ÃÂÃÂ ÃÂ³ÃÂÃÂ© {py}</button>
+            <button className={`th-pick-yearall ${period === `year:${py}` ? "on" : ""}`} onClick={() => { onChange(`year:${py}`); setOpen(false); }}>ÃÂÃÂ¹ÃÂÃÂ±ÃÂÃÂ¶ ÃÂÃÂÃÂÃÂ ÃÂÃÂ³ÃÂÃÂÃÂÃÂ© {py}</button>
             <div className="th-pick-grid">
               {Array.from({ length: 12 }, (_, i) => i + 1).map((m) => {
                 const rec = recForM(m);
@@ -132,7 +131,7 @@ function MonthPicker({ records, period, onChange }) {
                 );
               })}
             </div>
-            <p className="th-pick-hint">ÃÂ§ÃÂÃÂ´ÃÂÃÂÃÂ± ÃÂ§ÃÂÃÂÃÂ ÃÂ¹ÃÂÃÂÃÂÃÂ§ ÃÂÃÂÃÂ·ÃÂ© ÃÂÃÂÃÂÃÂ§ ÃÂ¨ÃÂÃÂ§ÃÂÃÂ§ÃÂª</p>
+            <p className="th-pick-hint">ÃÂÃÂ§ÃÂÃÂÃÂÃÂ´ÃÂÃÂÃÂÃÂÃÂÃÂ± ÃÂÃÂ§ÃÂÃÂÃÂÃÂÃÂÃÂ ÃÂÃÂ¹ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ§ ÃÂÃÂÃÂÃÂÃÂÃÂ·ÃÂÃÂ© ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ§ ÃÂÃÂ¨ÃÂÃÂÃÂÃÂ§ÃÂÃÂÃÂÃÂ§ÃÂÃÂª</p>
           </div>
         </>
       )}
@@ -205,9 +204,9 @@ function App() {
     };
   }, [view]);
 
-  const periodLabel = period === "all" ? "ÃÂÃÂ ÃÂ§ÃÂÃÂÃÂ¯ÃÂ©" : (typeof period === "string" && period.startsWith("year:")) ? `ÃÂ³ÃÂÃÂ© ${period.slice(5)}` : (records || []).find((r) => r.id === period)?.month?.trim() || "";
+  const periodLabel = period === "all" ? "ÃÂÃÂÃÂÃÂ ÃÂÃÂ§ÃÂÃÂÃÂÃÂÃÂÃÂ¯ÃÂÃÂ©" : (typeof period === "string" && period.startsWith("year:")) ? `ÃÂÃÂ³ÃÂÃÂÃÂÃÂ© ${period.slice(5)}` : (records || []).find((r) => r.id === period)?.month?.trim() || "";
 
-  // ÃÂ´ÃÂÃÂ§ÃÂ: ÃÂÃÂ ÃÂ´ÃÂ±ÃÂÃÂ ÃÂ¨ÃÂÃÂ§ÃÂ®ÃÂ¯ ÃÂÃÂ¨ÃÂÃÂº ÃÂ«ÃÂ§ÃÂ¨ÃÂªÃÂ ÃÂÃÂ§ÃÂÃÂ¨ÃÂ§ÃÂÃÂ ÃÂÃÂÃÂ²ÃÂ ÃÂ±ÃÂµÃÂÃÂ¯ ÃÂ§ÃÂÃÂ´ÃÂ±ÃÂÃÂ© ÃÂªÃÂÃÂÃÂ§ÃÂ¦ÃÂÃÂÃÂ§
+  // ÃÂÃÂ´ÃÂÃÂÃÂÃÂ§ÃÂÃÂ: ÃÂÃÂÃÂÃÂ ÃÂÃÂ´ÃÂÃÂ±ÃÂÃÂÃÂÃÂ ÃÂÃÂ¨ÃÂÃÂÃÂÃÂ§ÃÂÃÂ®ÃÂÃÂ¯ ÃÂÃÂÃÂÃÂ¨ÃÂÃÂÃÂÃÂº ÃÂÃÂ«ÃÂÃÂ§ÃÂÃÂ¨ÃÂÃÂªÃÂÃÂ ÃÂÃÂÃÂÃÂ§ÃÂÃÂÃÂÃÂ¨ÃÂÃÂ§ÃÂÃÂÃÂÃÂ ÃÂÃÂÃÂÃÂÃÂÃÂ²ÃÂÃÂ ÃÂÃÂ±ÃÂÃÂµÃÂÃÂÃÂÃÂ¯ ÃÂÃÂ§ÃÂÃÂÃÂÃÂ´ÃÂÃÂ±ÃÂÃÂÃÂÃÂ© ÃÂÃÂªÃÂÃÂÃÂÃÂÃÂÃÂ§ÃÂÃÂ¦ÃÂÃÂÃÂÃÂÃÂÃÂ§
   const monthDist = (r) => {
     const opNet = netProfit(r);
     const loss = opNet < 0;
@@ -227,13 +226,13 @@ function App() {
       if (!prev.length) return null;
       const curNet = recs.filter((r) => parseMY(r.month).y === y).reduce((a, r) => a + netProfit(r), 0);
       const prevNet = prev.reduce((a, r) => a + netProfit(r), 0);
-      return { diff: curNet - prevNet, pct: prevNet !== 0 ? Math.round(((curNet - prevNet) / Math.abs(prevNet)) * 100) : null, label: `ÃÂÃÂÃÂ§ÃÂ±ÃÂÃÂ© ÃÂ¨ÃÂ³ÃÂÃÂ© ${y - 1}` };
+      return { diff: curNet - prevNet, pct: prevNet !== 0 ? Math.round(((curNet - prevNet) / Math.abs(prevNet)) * 100) : null, label: `ÃÂÃÂÃÂÃÂÃÂÃÂ§ÃÂÃÂ±ÃÂÃÂÃÂÃÂ© ÃÂÃÂ¨ÃÂÃÂ³ÃÂÃÂÃÂÃÂ© ${y - 1}` };
     }
     const idx = period === "all" ? recs.length - 1 : recs.findIndex((r) => r.id === period);
     if (idx <= 0) return null;
     const diff = netProfit(recs[idx]) - netProfit(recs[idx - 1]);
     const prev = netProfit(recs[idx - 1]);
-    return { diff, pct: prev !== 0 ? Math.round((diff / Math.abs(prev)) * 100) : null, label: `ÃÂÃÂÃÂ§ÃÂ±ÃÂÃÂ© ÃÂ¨ÃÂ ${recs[idx - 1].month.trim()}` };
+    return { diff, pct: prev !== 0 ? Math.round((diff / Math.abs(prev)) * 100) : null, label: `ÃÂÃÂÃÂÃÂÃÂÃÂ§ÃÂÃÂ±ÃÂÃÂÃÂÃÂ© ÃÂÃÂ¨ÃÂÃÂ ${recs[idx - 1].month.trim()}` };
   }, [records, period]);
 
   const chartYears = useMemo(() => [...new Set((records || []).map((r) => parseMY(r.month).y).filter(Boolean))].sort((a, b) => b - a), [records]);
@@ -249,7 +248,7 @@ function App() {
 
   const submit = () => {
     if (!form.mon || !form.yr) return;
-    const rec = { id: `r-${Date.now()}`, month: `ÃÂ´ÃÂÃÂ± ${form.mon} - ${form.yr}`, ...ALL_FIELDS.reduce((a, k) => ({ ...a, [k]: Number(form[k]) || 0 }), {}) };
+    const rec = { id: `r-${Date.now()}`, month: `ÃÂÃÂ´ÃÂÃÂÃÂÃÂ± ${form.mon} - ${form.yr}`, ...ALL_FIELDS.reduce((a, k) => ({ ...a, [k]: Number(form[k]) || 0 }), {}) };
     setRecords((rs) => sortRecs([...(rs || []), rec]));
     setForm(emptyForm());
   };
@@ -257,28 +256,28 @@ function App() {
   const setEField = (k, v) => setEditForm((f) => ({ ...f, [k]: v }));
   const saveEdit = () => {
     if (!editForm || !editForm.mon || !editForm.yr) return;
-    const rec = { month: `ÃÂ´ÃÂÃÂ± ${editForm.mon} - ${editForm.yr}`, ...ALL_FIELDS.reduce((a, k) => ({ ...a, [k]: Number(editForm[k]) || 0 }), {}) };
+    const rec = { month: `ÃÂÃÂ´ÃÂÃÂÃÂÃÂ± ${editForm.mon} - ${editForm.yr}`, ...ALL_FIELDS.reduce((a, k) => ({ ...a, [k]: Number(editForm[k]) || 0 }), {}) };
     setRecords((rs) => sortRecs(rs.map((r) => (r.id === editingId ? { ...r, ...rec } : r))));
     setEditingId(null); setEditForm(null);
   };
   const cancelEdit = () => { setEditingId(null); setEditForm(null); };
   const remove = (id) => setRecords((rs) => rs.filter((r) => r.id !== id));
-  const resetAll = () => { if (window.confirm("ÃÂÃÂªÃÂ±ÃÂ¬ÃÂÃÂ¹ ÃÂÃÂ ÃÂ§ÃÂÃÂ¨ÃÂÃÂ§ÃÂÃÂ§ÃÂª ÃÂÃÂÃÂ£ÃÂµÃÂ ÃÂ§ÃÂÃÂÃÂ ÃÂÃÂ ÃÂ§ÃÂÃÂ§ÃÂÃÂ³ÃÂÃÂ")) { setEditingId(null); setForm(emptyForm()); setRecords(sortRecs(SEED)); } };
+  const resetAll = () => { if (window.confirm("ÃÂÃÂÃÂÃÂªÃÂÃÂ±ÃÂÃÂ¬ÃÂÃÂÃÂÃÂ¹ ÃÂÃÂÃÂÃÂ ÃÂÃÂ§ÃÂÃÂÃÂÃÂ¨ÃÂÃÂÃÂÃÂ§ÃÂÃÂÃÂÃÂ§ÃÂÃÂª ÃÂÃÂÃÂÃÂÃÂÃÂ£ÃÂÃÂµÃÂÃÂ ÃÂÃÂ§ÃÂÃÂÃÂÃÂÃÂÃÂ ÃÂÃÂÃÂÃÂ ÃÂÃÂ§ÃÂÃÂÃÂÃÂ§ÃÂÃÂÃÂÃÂ³ÃÂÃÂÃÂÃÂ")) { setEditingId(null); setForm(emptyForm()); setRecords(sortRecs(SEED)); } };
 
-  const addPartner = () => setPartners((ps) => [...ps, { id: `p-${Date.now()}`, name: "ÃÂ´ÃÂ±ÃÂÃÂ ÃÂ¬ÃÂ¯ÃÂÃÂ¯", salary: 0 }]);
+  const addPartner = () => setPartners((ps) => [...ps, { id: `p-${Date.now()}`, name: "ÃÂÃÂ´ÃÂÃÂ±ÃÂÃÂÃÂÃÂ ÃÂÃÂ¬ÃÂÃÂ¯ÃÂÃÂÃÂÃÂ¯", salary: 0 }]);
   const updPartner = (id, k, v) => setPartners((ps) => ps.map((p) => (p.id === id ? { ...p, [k]: v } : p)));
   const delPartner = (id) => setPartners((ps) => ps.filter((p) => p.id !== id));
 
   const exportCSV = () => {
-    const head = ["ÃÂ§ÃÂÃÂ´ÃÂÃÂ±", "ÃÂ§ÃÂÃÂ¯ÃÂ®ÃÂ ÃÂ§ÃÂÃÂ´ÃÂÃÂ±ÃÂ", ...EXPENSE_FIELDS.map((f) => f.label), "ÃÂµÃÂ§ÃÂÃÂ ÃÂ§ÃÂÃÂ±ÃÂ¨ÃÂ­", "ÃÂÃÂµÃÂÃÂ¨ ÃÂÃÂ ÃÂ´ÃÂ±ÃÂÃÂ"];
+    const head = ["ÃÂÃÂ§ÃÂÃÂÃÂÃÂ´ÃÂÃÂÃÂÃÂ±", "ÃÂÃÂ§ÃÂÃÂÃÂÃÂ¯ÃÂÃÂ®ÃÂÃÂ ÃÂÃÂ§ÃÂÃÂÃÂÃÂ´ÃÂÃÂÃÂÃÂ±ÃÂÃÂ", ...EXPENSE_FIELDS.map((f) => f.label), "ÃÂÃÂµÃÂÃÂ§ÃÂÃÂÃÂÃÂ ÃÂÃÂ§ÃÂÃÂÃÂÃÂ±ÃÂÃÂ¨ÃÂÃÂ­", "ÃÂÃÂÃÂÃÂµÃÂÃÂÃÂÃÂ¨ ÃÂÃÂÃÂÃÂ ÃÂÃÂ´ÃÂÃÂ±ÃÂÃÂÃÂÃÂ"];
     const rows = (records || []).map((r) => [r.month, r.income, ...EXPENSE_FIELDS.map((f) => r[f.key] || 0), netProfit(r), Math.round(monthDist(r).perPartner)]);
     const csv = "\uFEFF" + [head, ...rows].map((r) => r.join(",")).join("\n");
     const url = URL.createObjectURL(new Blob([csv], { type: "text/csv;charset=utf-8;" }));
-    const a = document.createElement("a"); a.href = url; a.download = "ÃÂ­ÃÂ³ÃÂ§ÃÂ¨ÃÂ§ÃÂª_trio_hub.csv"; a.click(); URL.revokeObjectURL(url);
+    const a = document.createElement("a"); a.href = url; a.download = "ÃÂÃÂ­ÃÂÃÂ³ÃÂÃÂ§ÃÂÃÂ¨ÃÂÃÂ§ÃÂÃÂª_trio_hub.csv"; a.click(); URL.revokeObjectURL(url);
   };
 
   const hour = new Date().getHours();
-  const greet = hour < 12 ? "ÃÂµÃÂ¨ÃÂ§ÃÂ­ ÃÂ§ÃÂÃÂ®ÃÂÃÂ±" : hour < 17 ? "ÃÂÃÂÃÂ§ÃÂ±ÃÂ ÃÂ³ÃÂ¹ÃÂÃÂ¯" : "ÃÂÃÂ³ÃÂ§ÃÂ¡ ÃÂ§ÃÂÃÂ®ÃÂÃÂ±";
+  const greet = hour < 12 ? "ÃÂÃÂµÃÂÃÂ¨ÃÂÃÂ§ÃÂÃÂ­ ÃÂÃÂ§ÃÂÃÂÃÂÃÂ®ÃÂÃÂÃÂÃÂ±" : hour < 17 ? "ÃÂÃÂÃÂÃÂÃÂÃÂ§ÃÂÃÂ±ÃÂÃÂ ÃÂÃÂ³ÃÂÃÂ¹ÃÂÃÂÃÂÃÂ¯" : "ÃÂÃÂÃÂÃÂ³ÃÂÃÂ§ÃÂÃÂ¡ ÃÂÃÂ§ÃÂÃÂÃÂÃÂ®ÃÂÃÂÃÂÃÂ±";
   let today = "";
   try { today = new Date().toLocaleDateString("ar-EG", { weekday: "long", day: "numeric", month: "long", year: "numeric" }); } catch (e) {}
 
@@ -289,95 +288,95 @@ function App() {
       <style>{CSS}</style>
 
       <header className="th-header">
-        <div className="th-greet"><p className="th-hi">{greet} Ã°ÂÂÂ</p><p className="th-date">{today}</p></div>
+        <div className="th-greet"><p className="th-hi">{greet} ÃÂ°ÃÂÃÂÃÂ</p><p className="th-date">{today}</p></div>
         <div className="th-brand">
-          <span className="th-status"><span className={`th-dot ${saved ? "ok" : "wait"}`} />{saved ? "ÃÂÃÂ­ÃÂÃÂÃÂ¸" : "ÃÂ¬ÃÂ§ÃÂ±ÃÂ ÃÂ§ÃÂÃÂ­ÃÂÃÂ¸Ã¢ÂÂ¦"}</span>
+          <span className="th-status"><span className={`th-dot ${saved ? "ok" : "wait"}`} />{saved ? "ÃÂÃÂÃÂÃÂ­ÃÂÃÂÃÂÃÂÃÂÃÂ¸" : "ÃÂÃÂ¬ÃÂÃÂ§ÃÂÃÂ±ÃÂÃÂ ÃÂÃÂ§ÃÂÃÂÃÂÃÂ­ÃÂÃÂÃÂÃÂ¸ÃÂ¢ÃÂÃÂ¦"}</span>
           <div className="th-logo">TH</div>
         </div>
       </header>
 
       <div className="th-hero">
-        <div className="th-hero-top"><span>{periodLabel === "ÃÂÃÂ ÃÂ§ÃÂÃÂÃÂ¯ÃÂ©" ? "ÃÂµÃÂ§ÃÂÃÂ ÃÂ§ÃÂÃÂ±ÃÂ¨ÃÂ­ Ã¢ÂÂ ÃÂÃÂ ÃÂ§ÃÂÃÂÃÂ¯ÃÂ©" : `ÃÂµÃÂ§ÃÂÃÂ ÃÂ±ÃÂ¨ÃÂ­ ${periodLabel}`}</span><span className="th-hero-tag">Trio Hub</span></div>
+        <div className="th-hero-top"><span>{periodLabel === "ÃÂÃÂÃÂÃÂ ÃÂÃÂ§ÃÂÃÂÃÂÃÂÃÂÃÂ¯ÃÂÃÂ©" ? "ÃÂÃÂµÃÂÃÂ§ÃÂÃÂÃÂÃÂ ÃÂÃÂ§ÃÂÃÂÃÂÃÂ±ÃÂÃÂ¨ÃÂÃÂ­ ÃÂ¢ÃÂÃÂ ÃÂÃÂÃÂÃÂ ÃÂÃÂ§ÃÂÃÂÃÂÃÂÃÂÃÂ¯ÃÂÃÂ©" : `ÃÂÃÂµÃÂÃÂ§ÃÂÃÂÃÂÃÂ ÃÂÃÂ±ÃÂÃÂ¨ÃÂÃÂ­ ${periodLabel}`}</span><span className="th-hero-tag">Trio Hub</span></div>
         <div className={`th-hero-val ${totals.net >= 0 ? "" : "neg"}`}>{fmt(totals.net)}</div>
         <div className="th-hero-stats">
-          <div><b>{fmt(totals.income)}</b><span>ÃÂ§ÃÂÃÂ¯ÃÂ®ÃÂ</span></div>
-          <div><b>{fmt(totals.expenses)}</b><span>ÃÂ§ÃÂÃÂÃÂµÃÂ§ÃÂ±ÃÂÃÂ</span></div>
+          <div><b>{fmt(totals.income)}</b><span>ÃÂÃÂ§ÃÂÃÂÃÂÃÂ¯ÃÂÃÂ®ÃÂÃÂ</span></div>
+          <div><b>{fmt(totals.expenses)}</b><span>ÃÂÃÂ§ÃÂÃÂÃÂÃÂÃÂÃÂµÃÂÃÂ§ÃÂÃÂ±ÃÂÃÂÃÂÃÂ</span></div>
           <div>
             {comparison ? (
               <b className={`cmp ${comparison.diff >= 0 ? "up" : "down"}`}>
                 {comparison.diff >= 0 ? <Icon name="trending-up" size={15} strokeWidth={2.6} /> : <Icon name="trending-down" size={15} strokeWidth={2.6} />}
                 {comparison.pct !== null ? `${comparison.diff >= 0 ? "+" : ""}${comparison.pct}%` : `${comparison.diff >= 0 ? "+" : ""}${fmt(comparison.diff)}`}
               </b>
-            ) : <b className="cmp flat">Ã¢ÂÂ</b>}
-            <span>{comparison ? comparison.label : "ÃÂÃÂ§ ÃÂªÃÂÃÂ¬ÃÂ¯ ÃÂÃÂÃÂ§ÃÂ±ÃÂÃÂ©"}</span>
+            ) : <b className="cmp flat">ÃÂ¢ÃÂÃÂ</b>}
+            <span>{comparison ? comparison.label : "ÃÂÃÂÃÂÃÂ§ ÃÂÃÂªÃÂÃÂÃÂÃÂ¬ÃÂÃÂ¯ ÃÂÃÂÃÂÃÂÃÂÃÂ§ÃÂÃÂ±ÃÂÃÂÃÂÃÂ©"}</span>
           </div>
         </div>
       </div>
 
       <div className="th-period">
-        <label>ÃÂ§ÃÂÃÂÃÂ¯ÃÂ© ÃÂ§ÃÂÃÂÃÂ¹ÃÂ±ÃÂÃÂ¶ÃÂ©</label>
+        <label>ÃÂÃÂ§ÃÂÃÂÃÂÃÂÃÂÃÂ¯ÃÂÃÂ© ÃÂÃÂ§ÃÂÃÂÃÂÃÂÃÂÃÂ¹ÃÂÃÂ±ÃÂÃÂÃÂÃÂ¶ÃÂÃÂ©</label>
         <MonthPicker records={records || []} period={period} onChange={setPeriod} />
-        <span className="th-period-count">{view.length} ÃÂ´ÃÂÃÂ±</span>
+        <span className="th-period-count">{view.length} ÃÂÃÂ´ÃÂÃÂÃÂÃÂ±</span>
       </div>
 
       <section className="th-cards">
-        <Card label="ÃÂ§ÃÂÃÂ¯ÃÂ®ÃÂ" value={totals.income} tone="blue" />
-        <Card label="ÃÂÃÂµÃÂ§ÃÂ±ÃÂÃÂ ÃÂªÃÂ´ÃÂºÃÂÃÂÃÂÃÂ©" value={totals.operational} tone="amber" />
-        <Card label="ÃÂÃÂ³ÃÂ· ÃÂ§ÃÂÃÂÃÂ±ÃÂ¶" value={totals.byField.loan} tone="purple" />
-        <Card label="ÃÂ¯ÃÂÃÂ¹ÃÂ© ÃÂ§ÃÂÃÂ£ÃÂÃÂÃÂ§ÃÂ¯" value={totals.byField.codes} tone="rose" />
-        {period === "all" && <Card label="ÃÂÃÂªÃÂÃÂ³ÃÂ· ÃÂ§ÃÂÃÂ±ÃÂ¨ÃÂ­ ÃÂ§ÃÂÃÂ´ÃÂÃÂ±ÃÂ" value={totals.avg} tone="teal" />}
+        <Card label="ÃÂÃÂ§ÃÂÃÂÃÂÃÂ¯ÃÂÃÂ®ÃÂÃÂ" value={totals.income} tone="blue" />
+        <Card label="ÃÂÃÂÃÂÃÂµÃÂÃÂ§ÃÂÃÂ±ÃÂÃÂÃÂÃÂ ÃÂÃÂªÃÂÃÂ´ÃÂÃÂºÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ©" value={totals.operational} tone="amber" />
+        <Card label="ÃÂÃÂÃÂÃÂ³ÃÂÃÂ· ÃÂÃÂ§ÃÂÃÂÃÂÃÂÃÂÃÂ±ÃÂÃÂ¶" value={totals.byField.loan} tone="purple" />
+        <Card label="ÃÂÃÂ¯ÃÂÃÂÃÂÃÂ¹ÃÂÃÂ© ÃÂÃÂ§ÃÂÃÂÃÂÃÂ£ÃÂÃÂÃÂÃÂÃÂÃÂ§ÃÂÃÂ¯" value={totals.byField.codes} tone="rose" />
+        {period === "all" && <Card label="ÃÂÃÂÃÂÃÂªÃÂÃÂÃÂÃÂ³ÃÂÃÂ· ÃÂÃÂ§ÃÂÃÂÃÂÃÂ±ÃÂÃÂ¨ÃÂÃÂ­ ÃÂÃÂ§ÃÂÃÂÃÂÃÂ´ÃÂÃÂÃÂÃÂ±ÃÂÃÂ" value={totals.avg} tone="teal" />}
       </section>
 
       <section className="th-panel">
-        <h2><Icon name="landmark" size={17} strokeWidth={2.2} /> ÃÂ§ÃÂÃÂ§ÃÂÃÂªÃÂ²ÃÂ§ÃÂÃÂ§ÃÂª ÃÂÃÂ§ÃÂÃÂÃÂªÃÂ¨ÃÂÃÂÃÂ</h2>
+        <h2><Icon name="landmark" size={17} strokeWidth={2.2} /> ÃÂÃÂ§ÃÂÃÂÃÂÃÂ§ÃÂÃÂÃÂÃÂªÃÂÃÂ²ÃÂÃÂ§ÃÂÃÂÃÂÃÂ§ÃÂÃÂª ÃÂÃÂÃÂÃÂ§ÃÂÃÂÃÂÃÂÃÂÃÂªÃÂÃÂ¨ÃÂÃÂÃÂÃÂÃÂÃÂ</h2>
         <div className="th-debts">
-          <DebtCard label="ÃÂ§ÃÂÃÂÃÂ±ÃÂ¶" total={SEED_DEBTS.loan.total} paidAnchor={SEED_DEBTS.loan.paidAnchor} base={SEED_DEBTS.loan.base} paidNow={paidLoan} />
-          <DebtCard label="ÃÂ§ÃÂÃÂ£ÃÂÃÂÃÂ§ÃÂ¯" total={SEED_DEBTS.codes.total} paidAnchor={SEED_DEBTS.codes.paidAnchor} base={SEED_DEBTS.codes.base} paidNow={paidCodes} />
+          <DebtCard label="ÃÂÃÂ§ÃÂÃÂÃÂÃÂÃÂÃÂ±ÃÂÃÂ¶" total={SEED_DEBTS.loan.total} paidAnchor={SEED_DEBTS.loan.paidAnchor} base={SEED_DEBTS.loan.base} paidNow={paidLoan} />
+          <DebtCard label="ÃÂÃÂ§ÃÂÃÂÃÂÃÂ£ÃÂÃÂÃÂÃÂÃÂÃÂ§ÃÂÃÂ¯" total={SEED_DEBTS.codes.total} paidAnchor={SEED_DEBTS.codes.paidAnchor} base={SEED_DEBTS.codes.base} paidNow={paidCodes} />
         </div>
       </section>
 
       <section className="th-panel partners">
         <div className="th-panel-head">
-          <h2><Icon name="users" size={17} strokeWidth={2.2} /> <span>ÃÂ£ÃÂ±ÃÂ¨ÃÂ§ÃÂ­ ÃÂ§ÃÂÃÂ´ÃÂ±ÃÂÃÂ§ÃÂ¡</span> <span className="muted">Ã¢ÂÂ {periodLabel}</span></h2>
-          <button className="btn ghost sm" onClick={() => setEditingPartners((v) => !v)}>{editingPartners ? "ÃÂªÃÂ" : "Ã¢ÂÂ ÃÂªÃÂ¹ÃÂ¯ÃÂÃÂ"}</button>
+          <h2><Icon name="users" size={17} strokeWidth={2.2} /> <span>ÃÂÃÂ£ÃÂÃÂ±ÃÂÃÂ¨ÃÂÃÂ§ÃÂÃÂ­ ÃÂÃÂ§ÃÂÃÂÃÂÃÂ´ÃÂÃÂ±ÃÂÃÂÃÂÃÂ§ÃÂÃÂ¡</span> <span className="muted">ÃÂ¢ÃÂÃÂ {periodLabel}</span></h2>
+          <button className="btn ghost sm" onClick={() => setEditingPartners((v) => !v)}>{editingPartners ? "ÃÂÃÂªÃÂÃÂ" : "ÃÂ¢ÃÂÃÂ ÃÂÃÂªÃÂÃÂ¹ÃÂÃÂ¯ÃÂÃÂÃÂÃÂ"}</button>
         </div>
-        <p className="th-company-note">ÃÂÃÂ ÃÂ§ÃÂÃÂ±ÃÂ¨ÃÂ­ ÃÂ¨ÃÂÃÂªÃÂÃÂ²ÃÂÃÂ¹ ÃÂ¨ÃÂ§ÃÂÃÂªÃÂ³ÃÂ§ÃÂÃÂ ÃÂ¹ÃÂÃÂ ÃÂ§ÃÂÃÂ´ÃÂ±ÃÂÃÂ§ÃÂ¡ Ã¢ÂÂ ÃÂÃÂ ÃÂ´ÃÂ±ÃÂÃÂ ÃÂ¨ÃÂÃÂ§ÃÂ®ÃÂ¯ {sharePct}% ÃÂÃÂ ÃÂ±ÃÂ¨ÃÂ­ ÃÂÃÂ ÃÂ´ÃÂÃÂ±. ÃÂÃÂÃÂÃÂ´ ÃÂ­ÃÂ§ÃÂ¬ÃÂ© ÃÂ¨ÃÂªÃÂÃÂ¶ÃÂ ÃÂÃÂÃÂ´ÃÂ±ÃÂÃÂ©.</p>
+        <p className="th-company-note">ÃÂÃÂÃÂÃÂ ÃÂÃÂ§ÃÂÃÂÃÂÃÂ±ÃÂÃÂ¨ÃÂÃÂ­ ÃÂÃÂ¨ÃÂÃÂÃÂÃÂªÃÂÃÂÃÂÃÂ²ÃÂÃÂÃÂÃÂ¹ ÃÂÃÂ¨ÃÂÃÂ§ÃÂÃÂÃÂÃÂªÃÂÃÂ³ÃÂÃÂ§ÃÂÃÂÃÂÃÂ ÃÂÃÂ¹ÃÂÃÂÃÂÃÂ ÃÂÃÂ§ÃÂÃÂÃÂÃÂ´ÃÂÃÂ±ÃÂÃÂÃÂÃÂ§ÃÂÃÂ¡ ÃÂ¢ÃÂÃÂ ÃÂÃÂÃÂÃÂ ÃÂÃÂ´ÃÂÃÂ±ÃÂÃÂÃÂÃÂ ÃÂÃÂ¨ÃÂÃÂÃÂÃÂ§ÃÂÃÂ®ÃÂÃÂ¯ {sharePct}% ÃÂÃÂÃÂÃÂ ÃÂÃÂ±ÃÂÃÂ¨ÃÂÃÂ­ ÃÂÃÂÃÂÃÂ ÃÂÃÂ´ÃÂÃÂÃÂÃÂ±. ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ´ ÃÂÃÂ­ÃÂÃÂ§ÃÂÃÂ¬ÃÂÃÂ© ÃÂÃÂ¨ÃÂÃÂªÃÂÃÂÃÂÃÂ¶ÃÂÃÂ ÃÂÃÂÃÂÃÂÃÂÃÂ´ÃÂÃÂ±ÃÂÃÂÃÂÃÂ©.</p>
         <div className="th-partner-cards">
           {partners.map((p) => {
             const take = partnerTake(p);
             return (
               <div className="th-partner" key={p.id}>
-                <div className="th-partner-top"><span className="th-avatar">{(p.name || "ÃÂ").trim().charAt(0)}</span><span className="th-partner-month">{sharePct}% ÃÂÃÂ ÃÂ§ÃÂÃÂ±ÃÂ¨ÃÂ­</span></div>
+                <div className="th-partner-top"><span className="th-avatar">{(p.name || "ÃÂÃÂ").trim().charAt(0)}</span><span className="th-partner-month">{sharePct}% ÃÂÃÂÃÂÃÂ ÃÂÃÂ§ÃÂÃÂÃÂÃÂ±ÃÂÃÂ¨ÃÂÃÂ­</span></div>
                 <span className="th-partner-name">{p.name}</span>
                 <div className={`th-partner-val ${take >= 0 ? "pos" : "neg"}`}>{fmt(Math.round(take))}</div>
-                <span className="th-partner-sub">ÃÂÃÂµÃÂÃÂ¨ÃÂ ÃÂ®ÃÂÃÂ§ÃÂ {periodLabel}</span>
+                <span className="th-partner-sub">ÃÂÃÂÃÂÃÂµÃÂÃÂÃÂÃÂ¨ÃÂÃÂ ÃÂÃÂ®ÃÂÃÂÃÂÃÂ§ÃÂÃÂ {periodLabel}</span>
               </div>
             );
           })}
         </div>
         {editingPartners && (
           <div className="th-partner-editor">
-            <p className="th-editor-hint">ÃÂ§ÃÂÃÂ±ÃÂ¨ÃÂ­ ÃÂ¨ÃÂÃÂªÃÂÃÂ³ÃÂ ÃÂ¨ÃÂ§ÃÂÃÂªÃÂ³ÃÂ§ÃÂÃÂ ÃÂ¹ÃÂÃÂ ÃÂ¹ÃÂ¯ÃÂ¯ ÃÂ§ÃÂÃÂ´ÃÂ±ÃÂÃÂ§ÃÂ¡. ÃÂÃÂ ÃÂÃÂ§ ÃÂªÃÂ¶ÃÂÃÂ ÃÂ£ÃÂ ÃÂªÃÂ´ÃÂÃÂ ÃÂ´ÃÂ±ÃÂÃÂ ÃÂ¨ÃÂªÃÂªÃÂºÃÂÃÂ± ÃÂ§ÃÂÃÂÃÂ³ÃÂ¨ÃÂ© ÃÂªÃÂÃÂÃÂ§ÃÂ¦ÃÂÃÂÃÂ§.</p>
+            <p className="th-editor-hint">ÃÂÃÂ§ÃÂÃÂÃÂÃÂ±ÃÂÃÂ¨ÃÂÃÂ­ ÃÂÃÂ¨ÃÂÃÂÃÂÃÂªÃÂÃÂÃÂÃÂ³ÃÂÃÂ ÃÂÃÂ¨ÃÂÃÂ§ÃÂÃÂÃÂÃÂªÃÂÃÂ³ÃÂÃÂ§ÃÂÃÂÃÂÃÂ ÃÂÃÂ¹ÃÂÃÂÃÂÃÂ ÃÂÃÂ¹ÃÂÃÂ¯ÃÂÃÂ¯ ÃÂÃÂ§ÃÂÃÂÃÂÃÂ´ÃÂÃÂ±ÃÂÃÂÃÂÃÂ§ÃÂÃÂ¡. ÃÂÃÂÃÂÃÂ ÃÂÃÂÃÂÃÂ§ ÃÂÃÂªÃÂÃÂ¶ÃÂÃÂÃÂÃÂ ÃÂÃÂ£ÃÂÃÂ ÃÂÃÂªÃÂÃÂ´ÃÂÃÂÃÂÃÂ ÃÂÃÂ´ÃÂÃÂ±ÃÂÃÂÃÂÃÂ ÃÂÃÂ¨ÃÂÃÂªÃÂÃÂªÃÂÃÂºÃÂÃÂÃÂÃÂ± ÃÂÃÂ§ÃÂÃÂÃÂÃÂÃÂÃÂ³ÃÂÃÂ¨ÃÂÃÂ© ÃÂÃÂªÃÂÃÂÃÂÃÂÃÂÃÂ§ÃÂÃÂ¦ÃÂÃÂÃÂÃÂÃÂÃÂ§.</p>
             {partners.map((p) => (
               <div className="th-partner-row" key={p.id}>
-                <input className="pn" type="text" value={p.name} onChange={(e) => updPartner(p.id, "name", e.target.value)} placeholder="ÃÂ§ÃÂ³ÃÂ ÃÂ§ÃÂÃÂ´ÃÂ±ÃÂÃÂ" />
-                <button className="del" onClick={() => delPartner(p.id)} title="ÃÂ­ÃÂ°ÃÂ"><Icon name="trash" size={15} strokeWidth={2.2} /></button>
+                <input className="pn" type="text" value={p.name} onChange={(e) => updPartner(p.id, "name", e.target.value)} placeholder="ÃÂÃÂ§ÃÂÃÂ³ÃÂÃÂ ÃÂÃÂ§ÃÂÃÂÃÂÃÂ´ÃÂÃÂ±ÃÂÃÂÃÂÃÂ" />
+                <button className="del" onClick={() => delPartner(p.id)} title="ÃÂÃÂ­ÃÂÃÂ°ÃÂÃÂ"><Icon name="trash" size={15} strokeWidth={2.2} /></button>
               </div>
             ))}
-            <button className="btn outline sm" onClick={addPartner}>+ ÃÂ¥ÃÂ¶ÃÂ§ÃÂÃÂ© ÃÂ´ÃÂ±ÃÂÃÂ</button>
+            <button className="btn outline sm" onClick={addPartner}>+ ÃÂÃÂ¥ÃÂÃÂ¶ÃÂÃÂ§ÃÂÃÂÃÂÃÂ© ÃÂÃÂ´ÃÂÃÂ±ÃÂÃÂÃÂÃÂ</button>
           </div>
         )}
       </section>
 
       <section className="th-panel">
-        <div className="th-panel-head"><h2><Icon name="activity" size={17} strokeWidth={2.2} /> ÃÂ§ÃÂÃÂ±ÃÂ³ÃÂ ÃÂ§ÃÂÃÂ¨ÃÂÃÂ§ÃÂÃÂ</h2></div>
+        <div className="th-panel-head"><h2><Icon name="activity" size={17} strokeWidth={2.2} /> ÃÂÃÂ§ÃÂÃÂÃÂÃÂ±ÃÂÃÂ³ÃÂÃÂ ÃÂÃÂ§ÃÂÃÂÃÂÃÂ¨ÃÂÃÂÃÂÃÂ§ÃÂÃÂÃÂÃÂ</h2></div>
         <div className="th-pills">
           {METRICS.map((m) => (
             <button key={m.key} className={`pill ${metric === m.key ? "on" : ""}`} style={metric === m.key ? { background: m.color, boxShadow: `0 6px 16px ${m.color}55` } : {}} onClick={() => setMetric(m.key)}>{m.label}</button>
           ))}
         </div>
         <div className="th-pills years">
-          <button className={`pill ghost ${chartRange === "recent" ? "on" : ""}`} onClick={() => setChartRange("recent")}>ÃÂ¢ÃÂ®ÃÂ± 6 ÃÂ´ÃÂÃÂÃÂ±</button>
+          <button className={`pill ghost ${chartRange === "recent" ? "on" : ""}`} onClick={() => setChartRange("recent")}>ÃÂÃÂ¢ÃÂÃÂ®ÃÂÃÂ± 6 ÃÂÃÂ´ÃÂÃÂÃÂÃÂÃÂÃÂ±</button>
           {chartYears.map((y) => (
             <button key={y} className={`pill ghost ${chartRange === y ? "on" : ""}`} onClick={() => setChartRange(y)}>{y}</button>
           ))}
@@ -406,36 +405,36 @@ function App() {
       </section>
 
       <section className="th-panel">
-        <h2><Icon name="plus-circle" size={17} strokeWidth={2.2} /> ÃÂ¥ÃÂ¶ÃÂ§ÃÂÃÂ© ÃÂ´ÃÂÃÂ± ÃÂ¬ÃÂ¯ÃÂÃÂ¯</h2>
+        <h2><Icon name="plus-circle" size={17} strokeWidth={2.2} /> ÃÂÃÂ¥ÃÂÃÂ¶ÃÂÃÂ§ÃÂÃÂÃÂÃÂ© ÃÂÃÂ´ÃÂÃÂÃÂÃÂ± ÃÂÃÂ¬ÃÂÃÂ¯ÃÂÃÂÃÂÃÂ¯</h2>
         <div className="th-form">
-          <Field label="ÃÂ§ÃÂÃÂ´ÃÂÃÂ±">
+          <Field label="ÃÂÃÂ§ÃÂÃÂÃÂÃÂ´ÃÂÃÂÃÂÃÂ±">
             <select value={form.mon} onChange={(e) => setField("mon", e.target.value)}>
-              <option value="">ÃÂ§ÃÂ®ÃÂªÃÂ± ÃÂ§ÃÂÃÂ´ÃÂÃÂ±</option>
-              {Array.from({ length: 12 }, (_, i) => i + 1).map((m) => <option key={m} value={m}>ÃÂ´ÃÂÃÂ± {m}</option>)}
+              <option value="">ÃÂÃÂ§ÃÂÃÂ®ÃÂÃÂªÃÂÃÂ± ÃÂÃÂ§ÃÂÃÂÃÂÃÂ´ÃÂÃÂÃÂÃÂ±</option>
+              {Array.from({ length: 12 }, (_, i) => i + 1).map((m) => <option key={m} value={m}>ÃÂÃÂ´ÃÂÃÂÃÂÃÂ± {m}</option>)}
             </select>
           </Field>
-          <Field label="ÃÂ§ÃÂÃÂ³ÃÂÃÂ©"><input type="number" inputMode="numeric" value={form.yr} onChange={(e) => setField("yr", e.target.value)} placeholder="2026" /></Field>
-          <Field label="ÃÂ§ÃÂÃÂ¯ÃÂ®ÃÂ ÃÂ§ÃÂÃÂ´ÃÂÃÂ±ÃÂ" tone="blue"><input type="number" inputMode="numeric" value={form.income} onChange={(e) => setField("income", e.target.value)} placeholder="0" /></Field>
+          <Field label="ÃÂÃÂ§ÃÂÃÂÃÂÃÂ³ÃÂÃÂÃÂÃÂ©"><input type="number" inputMode="numeric" value={form.yr} onChange={(e) => setField("yr", e.target.value)} placeholder="2026" /></Field>
+          <Field label="ÃÂÃÂ§ÃÂÃÂÃÂÃÂ¯ÃÂÃÂ®ÃÂÃÂ ÃÂÃÂ§ÃÂÃÂÃÂÃÂ´ÃÂÃÂÃÂÃÂ±ÃÂÃÂ" tone="blue"><input type="number" inputMode="numeric" value={form.income} onChange={(e) => setField("income", e.target.value)} placeholder="0" /></Field>
           {EXPENSE_FIELDS.map((f) => (
             <Field key={f.key} label={f.label} tone="amber"><input type="number" inputMode="numeric" value={form[f.key]} onChange={(e) => setField(f.key, e.target.value)} placeholder="0" /></Field>
           ))}
-          <Field label="ÃÂµÃÂ§ÃÂÃÂ ÃÂ§ÃÂÃÂ±ÃÂ¨ÃÂ­ (ÃÂªÃÂÃÂÃÂ§ÃÂ¦ÃÂ)" tone="green"><div className={`th-net ${liveNet >= 0 ? "pos" : "neg"}`}>{fmt(liveNet)}</div></Field>
+          <Field label="ÃÂÃÂµÃÂÃÂ§ÃÂÃÂÃÂÃÂ ÃÂÃÂ§ÃÂÃÂÃÂÃÂ±ÃÂÃÂ¨ÃÂÃÂ­ (ÃÂÃÂªÃÂÃÂÃÂÃÂÃÂÃÂ§ÃÂÃÂ¦ÃÂÃÂ)" tone="green"><div className={`th-net ${liveNet >= 0 ? "pos" : "neg"}`}>{fmt(liveNet)}</div></Field>
         </div>
         <div className="th-actions">
-          <button className="btn primary" onClick={submit}>ÃÂ¥ÃÂ¶ÃÂ§ÃÂÃÂ© ÃÂ§ÃÂÃÂ´ÃÂÃÂ±</button>
+          <button className="btn primary" onClick={submit}>ÃÂÃÂ¥ÃÂÃÂ¶ÃÂÃÂ§ÃÂÃÂÃÂÃÂ© ÃÂÃÂ§ÃÂÃÂÃÂÃÂ´ÃÂÃÂÃÂÃÂ±</button>
         </div>
       </section>
 
       <section className="th-panel">
         <div className="th-panel-head">
-          <h2><Icon name="list" size={17} strokeWidth={2.2} /> ÃÂ³ÃÂ¬ÃÂ ÃÂ§ÃÂÃÂ£ÃÂ´ÃÂÃÂ±</h2>
-          <div className="th-actions inline"><button className="btn outline sm" onClick={exportCSV}>Ã¢Â¬Â ÃÂªÃÂµÃÂ¯ÃÂÃÂ±</button><button className="btn outline sm danger" onClick={resetAll}>Ã¢ÂÂº ÃÂ§ÃÂ³ÃÂªÃÂ±ÃÂ¬ÃÂ§ÃÂ¹</button></div>
+          <h2><Icon name="list" size={17} strokeWidth={2.2} /> ÃÂÃÂ³ÃÂÃÂ¬ÃÂÃÂ ÃÂÃÂ§ÃÂÃÂÃÂÃÂ£ÃÂÃÂ´ÃÂÃÂÃÂÃÂ±</h2>
+          <div className="th-actions inline"><button className="btn outline sm" onClick={exportCSV}>ÃÂ¢ÃÂ¬ÃÂ ÃÂÃÂªÃÂÃÂµÃÂÃÂ¯ÃÂÃÂÃÂÃÂ±</button><button className="btn outline sm danger" onClick={resetAll}>ÃÂ¢ÃÂÃÂº ÃÂÃÂ§ÃÂÃÂ³ÃÂÃÂªÃÂÃÂ±ÃÂÃÂ¬ÃÂÃÂ§ÃÂÃÂ¹</button></div>
         </div>
         <div className="th-table-wrap">
           <table className="th-table">
-            <thead><tr><th>ÃÂ§ÃÂÃÂ´ÃÂÃÂ±</th><th className="num">ÃÂ§ÃÂÃÂ¯ÃÂ®ÃÂ</th>{EXPENSE_FIELDS.map((f) => <th key={f.key} className="num">{f.label}</th>)}<th className="num">ÃÂµÃÂ§ÃÂÃÂ ÃÂ§ÃÂÃÂ±ÃÂ¨ÃÂ­</th><th className="num">ÃÂÃÂµÃÂÃÂ¨ ÃÂÃÂ ÃÂ´ÃÂ±ÃÂÃÂ</th><th></th></tr></thead>
+            <thead><tr><th>ÃÂÃÂ§ÃÂÃÂÃÂÃÂ´ÃÂÃÂÃÂÃÂ±</th><th className="num">ÃÂÃÂ§ÃÂÃÂÃÂÃÂ¯ÃÂÃÂ®ÃÂÃÂ</th>{EXPENSE_FIELDS.map((f) => <th key={f.key} className="num">{f.label}</th>)}<th className="num">ÃÂÃÂµÃÂÃÂ§ÃÂÃÂÃÂÃÂ ÃÂÃÂ§ÃÂÃÂÃÂÃÂ±ÃÂÃÂ¨ÃÂÃÂ­</th><th className="num">ÃÂÃÂÃÂÃÂµÃÂÃÂÃÂÃÂ¨ ÃÂÃÂÃÂÃÂ ÃÂÃÂ´ÃÂÃÂ±ÃÂÃÂÃÂÃÂ</th><th></th></tr></thead>
             <tbody>
-              {(records || []).length === 0 && <tr><td colSpan={11} className="th-empty">ÃÂÃÂÃÂÃÂ´ ÃÂ¨ÃÂÃÂ§ÃÂÃÂ§ÃÂª ÃÂÃÂ³ÃÂ Ã¢ÂÂ ÃÂ¶ÃÂÃÂ ÃÂ£ÃÂÃÂ ÃÂ´ÃÂÃÂ± ÃÂÃÂ ÃÂÃÂÃÂ.</td></tr>}
+              {(records || []).length === 0 && <tr><td colSpan={11} className="th-empty">ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ´ ÃÂÃÂ¨ÃÂÃÂÃÂÃÂ§ÃÂÃÂÃÂÃÂ§ÃÂÃÂª ÃÂÃÂÃÂÃÂ³ÃÂÃÂ ÃÂ¢ÃÂÃÂ ÃÂÃÂ¶ÃÂÃÂÃÂÃÂ ÃÂÃÂ£ÃÂÃÂÃÂÃÂ ÃÂÃÂ´ÃÂÃÂÃÂÃÂ± ÃÂÃÂÃÂÃÂ ÃÂÃÂÃÂÃÂÃÂÃÂ.</td></tr>}
               {(records || []).map((r) => {
                 const net = netProfit(r);
                 return (
@@ -445,14 +444,14 @@ function App() {
                     {EXPENSE_FIELDS.map((f) => <td key={f.key} className="num dim">{fmt(r[f.key])}</td>)}
                     <td className={`num bold ${net >= 0 ? "pos" : "neg"}`}>{fmt(net)}</td>
                     <td className="num dim">{fmt(Math.round(monthDist(r).perPartner))}</td>
-                    <td className="ops"><button onClick={() => edit(r)} title="ÃÂªÃÂ¹ÃÂ¯ÃÂÃÂ"><Icon name="pencil" size={14} strokeWidth={2.2} /></button><button onClick={() => remove(r.id)} title="ÃÂ­ÃÂ°ÃÂ" className="del"><Icon name="trash" size={14} strokeWidth={2.2} /></button></td>
+                    <td className="ops"><button onClick={() => edit(r)} title="ÃÂÃÂªÃÂÃÂ¹ÃÂÃÂ¯ÃÂÃÂÃÂÃÂ"><Icon name="pencil" size={14} strokeWidth={2.2} /></button><button onClick={() => remove(r.id)} title="ÃÂÃÂ­ÃÂÃÂ°ÃÂÃÂ" className="del"><Icon name="trash" size={14} strokeWidth={2.2} /></button></td>
                   </tr>
                 );
               })}
             </tbody>
             {(records || []).length > 0 && (
               <tfoot><tr>
-                <td className="mn">ÃÂ§ÃÂÃÂ¥ÃÂ¬ÃÂÃÂ§ÃÂÃÂ (ÃÂ§ÃÂÃÂÃÂ)</td>
+                <td className="mn">ÃÂÃÂ§ÃÂÃÂÃÂÃÂ¥ÃÂÃÂ¬ÃÂÃÂÃÂÃÂ§ÃÂÃÂÃÂÃÂ (ÃÂÃÂ§ÃÂÃÂÃÂÃÂÃÂÃÂ)</td>
                 <td className="num">{fmt((records || []).reduce((a, r) => a + (Number(r.income) || 0), 0))}</td>
                 {EXPENSE_FIELDS.map((f) => <td key={f.key} className="num dim">{fmt((records || []).reduce((a, r) => a + (Number(r[f.key]) || 0), 0))}</td>)}
                 <td className="num bold pos">{fmt((records || []).reduce((a, r) => a + netProfit(r), 0))}</td>
@@ -467,35 +466,35 @@ function App() {
         <div className="th-modal-overlay" onClick={cancelEdit}>
           <div className="th-modal" onClick={(e) => e.stopPropagation()} dir="rtl">
             <div className="th-modal-head">
-              <h2><Icon name="pencil" size={16} strokeWidth={2.2} /> ÃÂªÃÂ¹ÃÂ¯ÃÂÃÂ ÃÂ§ÃÂÃÂ´ÃÂÃÂ±</h2>
-              <button className="th-modal-x" onClick={cancelEdit} title="ÃÂ¥ÃÂºÃÂÃÂ§ÃÂ">Ã¢ÂÂ</button>
+              <h2><Icon name="pencil" size={16} strokeWidth={2.2} /> ÃÂÃÂªÃÂÃÂ¹ÃÂÃÂ¯ÃÂÃÂÃÂÃÂ ÃÂÃÂ§ÃÂÃÂÃÂÃÂ´ÃÂÃÂÃÂÃÂ±</h2>
+              <button className="th-modal-x" onClick={cancelEdit} title="ÃÂÃÂ¥ÃÂÃÂºÃÂÃÂÃÂÃÂ§ÃÂÃÂ">ÃÂ¢ÃÂÃÂ</button>
             </div>
             <div className="th-form">
-              <Field label="ÃÂ§ÃÂÃÂ´ÃÂÃÂ±">
+              <Field label="ÃÂÃÂ§ÃÂÃÂÃÂÃÂ´ÃÂÃÂÃÂÃÂ±">
                 <select value={editForm.mon} onChange={(e) => setEField("mon", e.target.value)}>
-                  <option value="">ÃÂ§ÃÂ®ÃÂªÃÂ± ÃÂ§ÃÂÃÂ´ÃÂÃÂ±</option>
-                  {Array.from({ length: 12 }, (_, i) => i + 1).map((m) => <option key={m} value={m}>ÃÂ´ÃÂÃÂ± {m}</option>)}
+                  <option value="">ÃÂÃÂ§ÃÂÃÂ®ÃÂÃÂªÃÂÃÂ± ÃÂÃÂ§ÃÂÃÂÃÂÃÂ´ÃÂÃÂÃÂÃÂ±</option>
+                  {Array.from({ length: 12 }, (_, i) => i + 1).map((m) => <option key={m} value={m}>ÃÂÃÂ´ÃÂÃÂÃÂÃÂ± {m}</option>)}
                 </select>
               </Field>
-              <Field label="ÃÂ§ÃÂÃÂ³ÃÂÃÂ©"><input type="number" inputMode="numeric" value={editForm.yr} onChange={(e) => setEField("yr", e.target.value)} placeholder="2026" /></Field>
-              <Field label="ÃÂ§ÃÂÃÂ¯ÃÂ®ÃÂ ÃÂ§ÃÂÃÂ´ÃÂÃÂ±ÃÂ" tone="blue"><input type="number" inputMode="numeric" value={editForm.income} onChange={(e) => setEField("income", e.target.value)} placeholder="0" /></Field>
+              <Field label="ÃÂÃÂ§ÃÂÃÂÃÂÃÂ³ÃÂÃÂÃÂÃÂ©"><input type="number" inputMode="numeric" value={editForm.yr} onChange={(e) => setEField("yr", e.target.value)} placeholder="2026" /></Field>
+              <Field label="ÃÂÃÂ§ÃÂÃÂÃÂÃÂ¯ÃÂÃÂ®ÃÂÃÂ ÃÂÃÂ§ÃÂÃÂÃÂÃÂ´ÃÂÃÂÃÂÃÂ±ÃÂÃÂ" tone="blue"><input type="number" inputMode="numeric" value={editForm.income} onChange={(e) => setEField("income", e.target.value)} placeholder="0" /></Field>
               {EXPENSE_FIELDS.map((f) => (
                 <Field key={f.key} label={f.label} tone="amber"><input type="number" inputMode="numeric" value={editForm[f.key]} onChange={(e) => setEField(f.key, e.target.value)} placeholder="0" /></Field>
               ))}
               {(() => {
                 const en = netProfit({ income: editForm.income, ...EXPENSE_FIELDS.reduce((a, f) => ({ ...a, [f.key]: editForm[f.key] }), {}) });
-                return <Field label="ÃÂµÃÂ§ÃÂÃÂ ÃÂ§ÃÂÃÂ±ÃÂ¨ÃÂ­ (ÃÂªÃÂÃÂÃÂ§ÃÂ¦ÃÂ)" tone="green"><div className={`th-net ${en >= 0 ? "pos" : "neg"}`}>{fmt(en)}</div></Field>;
+                return <Field label="ÃÂÃÂµÃÂÃÂ§ÃÂÃÂÃÂÃÂ ÃÂÃÂ§ÃÂÃÂÃÂÃÂ±ÃÂÃÂ¨ÃÂÃÂ­ (ÃÂÃÂªÃÂÃÂÃÂÃÂÃÂÃÂ§ÃÂÃÂ¦ÃÂÃÂ)" tone="green"><div className={`th-net ${en >= 0 ? "pos" : "neg"}`}>{fmt(en)}</div></Field>;
               })()}
             </div>
             <div className="th-actions">
-              <button className="btn primary" onClick={saveEdit}>ÃÂ­ÃÂÃÂ¸ ÃÂ§ÃÂÃÂªÃÂ¹ÃÂ¯ÃÂÃÂ</button>
-              <button className="btn ghost" onClick={cancelEdit}>ÃÂ¥ÃÂÃÂºÃÂ§ÃÂ¡</button>
+              <button className="btn primary" onClick={saveEdit}>ÃÂÃÂ­ÃÂÃÂÃÂÃÂ¸ ÃÂÃÂ§ÃÂÃÂÃÂÃÂªÃÂÃÂ¹ÃÂÃÂ¯ÃÂÃÂÃÂÃÂ</button>
+              <button className="btn ghost" onClick={cancelEdit}>ÃÂÃÂ¥ÃÂÃÂÃÂÃÂºÃÂÃÂ§ÃÂÃÂ¡</button>
             </div>
           </div>
         </div>
       )}
 
-      <footer className="th-foot">ÃÂ¨ÃÂÃÂ§ÃÂÃÂ§ÃÂªÃÂ ÃÂ¨ÃÂªÃÂªÃÂ­ÃÂÃÂ¸ ÃÂªÃÂÃÂÃÂ§ÃÂ¦ÃÂÃÂÃÂ§ ÃÂ¹ÃÂÃÂ ÃÂ¬ÃÂÃÂ§ÃÂ²ÃÂ ÃÂÃÂ ÃÂÃÂÃÂ³ ÃÂ§ÃÂÃÂÃÂªÃÂµÃÂÃÂ­ Ã¢ÂÂ¢ Trio Hub</footer>
+      <footer className="th-foot">ÃÂÃÂ¨ÃÂÃÂÃÂÃÂ§ÃÂÃÂÃÂÃÂ§ÃÂÃÂªÃÂÃÂ ÃÂÃÂ¨ÃÂÃÂªÃÂÃÂªÃÂÃÂ­ÃÂÃÂÃÂÃÂ¸ ÃÂÃÂªÃÂÃÂÃÂÃÂÃÂÃÂ§ÃÂÃÂ¦ÃÂÃÂÃÂÃÂÃÂÃÂ§ ÃÂÃÂ¹ÃÂÃÂÃÂÃÂ ÃÂÃÂ¬ÃÂÃÂÃÂÃÂ§ÃÂÃÂ²ÃÂÃÂ ÃÂÃÂÃÂÃÂ ÃÂÃÂÃÂÃÂÃÂÃÂ³ ÃÂÃÂ§ÃÂÃÂÃÂÃÂÃÂÃÂªÃÂÃÂµÃÂÃÂÃÂÃÂ­ ÃÂ¢ÃÂÃÂ¢ Trio Hub</footer>
     </div>
   );
 }
@@ -509,12 +508,12 @@ function DebtCard({ label, total, paidAnchor, base, paidNow }) {
     <div className="th-debt">
       <span className="th-debt-name">{label}</span>
       <div className="th-debt-stats">
-        <div><span>ÃÂ£ÃÂµÃÂ ÃÂ§ÃÂÃÂÃÂ¨ÃÂÃÂº</span><b>{fmt(t)}</b></div>
-        <div><span>ÃÂÃÂ¯ÃÂÃÂÃÂ¹</span><b>{fmt(Math.max(0, paid))}</b></div>
-        <div><span>ÃÂÃÂªÃÂ¨ÃÂÃÂÃÂ</span><b className={t > 0 && remaining <= 0 ? "done" : "rem"}>{fmt(Math.max(0, remaining))}</b></div>
+        <div><span>ÃÂÃÂ£ÃÂÃÂµÃÂÃÂ ÃÂÃÂ§ÃÂÃÂÃÂÃÂÃÂÃÂ¨ÃÂÃÂÃÂÃÂº</span><b>{fmt(t)}</b></div>
+        <div><span>ÃÂÃÂÃÂÃÂ¯ÃÂÃÂÃÂÃÂÃÂÃÂ¹</span><b>{fmt(Math.max(0, paid))}</b></div>
+        <div><span>ÃÂÃÂÃÂÃÂªÃÂÃÂ¨ÃÂÃÂÃÂÃÂÃÂÃÂ</span><b className={t > 0 && remaining <= 0 ? "done" : "rem"}>{fmt(Math.max(0, remaining))}</b></div>
       </div>
       <div className="th-debt-bar"><div style={{ width: pct + "%" }} /></div>
-      <span className="th-debt-pct">{`${pct}% ÃÂ§ÃÂªÃÂ³ÃÂ¯ÃÂÃÂ¯${remaining <= 0 && t > 0 ? " Ã¢ÂÂ ÃÂ®ÃÂÃÂµ Ã¢ÂÂ" : ""} Ã¢ÂÂ¢ ÃÂÃÂ ÃÂÃÂ³ÃÂ· ÃÂ¬ÃÂ¯ÃÂÃÂ¯ ÃÂ¨ÃÂÃÂÃÂÃÂµ ÃÂ§ÃÂÃÂÃÂªÃÂ¨ÃÂÃÂÃÂ ÃÂªÃÂÃÂÃÂ§ÃÂ¦ÃÂÃÂÃÂ§`}</span>
+      <span className="th-debt-pct">{`${pct}% ÃÂÃÂ§ÃÂÃÂªÃÂÃÂ³ÃÂÃÂ¯ÃÂÃÂÃÂÃÂ¯${remaining <= 0 && t > 0 ? " ÃÂ¢ÃÂÃÂ ÃÂÃÂ®ÃÂÃÂÃÂÃÂµ ÃÂ¢ÃÂÃÂ" : ""} ÃÂ¢ÃÂÃÂ¢ ÃÂÃÂÃÂÃÂ ÃÂÃÂÃÂÃÂ³ÃÂÃÂ· ÃÂÃÂ¬ÃÂÃÂ¯ÃÂÃÂÃÂÃÂ¯ ÃÂÃÂ¨ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂµ ÃÂÃÂ§ÃÂÃÂÃÂÃÂÃÂÃÂªÃÂÃÂ¨ÃÂÃÂÃÂÃÂÃÂÃÂ ÃÂÃÂªÃÂÃÂÃÂÃÂÃÂÃÂ§ÃÂÃÂ¦ÃÂÃÂÃÂÃÂÃÂÃÂ§`}</span>
     </div>
   );
 }
