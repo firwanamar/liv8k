@@ -199,8 +199,23 @@ function DebtCard({label,total,paidAnchor,base,paidNow}){
 }
 
 function MiniAreaChart({data,color,label}){
+  const wrapRef=React.useRef(null);
+  const [cw,setCw]=React.useState(0);
+  React.useEffect(()=>{
+    if(!wrapRef.current)return;
+    const el=wrapRef.current;
+    setCw(el.offsetWidth||el.parentElement.offsetWidth||320);
+    const ro=new ResizeObserver(entries=>{
+      const w=entries[0].contentRect.width;
+      if(w>0)setCw(w);
+    });
+    ro.observe(el);
+    return()=>ro.disconnect();
+  },[]);
   if(!data||!data.length)return React.createElement("div",{className:"th-chart-empty"},"مفيش بيانات للعرض");
-  const W=Math.max(320,data.length*64),H=250,padX=26,padTop=34,padBot=34;
+  if(!cw)return React.createElement("div",{ref:wrapRef,style:{minHeight:250,width:"100%"}});
+  const minPtW=60;
+  const W=Math.max(cw,data.length*minPtW),H=250,padX=26,padTop=34,padBot=34;
   const innerW=W-padX*2,innerH=H-padTop-padBot;
   const vals=data.map(d=>d.value);
   const max=Math.max(...vals,0),min=Math.min(...vals,0);
@@ -209,10 +224,11 @@ function MiniAreaChart({data,color,label}){
   const y=v=>padTop+innerH-(v-min)/range*innerH;
   const pts=data.map((d,i)=>[x(i),y(d.value)]);
   const line=pts.map((p,i)=>(i?"L":"M")+p[0].toFixed(1)+" "+p[1].toFixed(1)).join(" ");
-  const area=line+" L "+pts[pts.length-1][0].toFixed(1)+" "+(padTop+innerH).toFixed(1)+" L "+pts[0][0].toFixed(1)+" "+(padTop+innerH).toFixed(1)+" Z";
+  const area=line+" L"+pts[pts.length-1][0].toFixed(1)+" "+(padTop+innerH)+" L"+pts[0][0].toFixed(1)+" "+(padTop+innerH)+" Z";
   const fmtK=v=>Math.abs(v)>=1000?Math.round(v/1000)+"k":String(v);
   const gid="g_"+color.replace(/[^a-z0-9]/gi,"");
-  return React.createElement("svg",{width:W,height:H,viewBox:"0 0 "+W+" "+H,style:{display:"block"}},
+  return React.createElement("div",{ref:wrapRef,style:{width:"100%",overflowX:W>cw?"auto":"visible"}},
+    React.createElement("svg",{width:W,height:H,viewBox:"0 0 "+W+" "+H,style:{display:"block"}},
     React.createElement("defs",null,
       React.createElement("linearGradient",{id:gid,x1:"0",y1:"0",x2:"0",y2:"1"},
         React.createElement("stop",{offset:"0%",stopColor:color,stopOpacity:"0.34"}),
@@ -223,7 +239,7 @@ function MiniAreaChart({data,color,label}){
     pts.map((p,i)=>React.createElement("g",{key:i},
       React.createElement("circle",{cx:p[0],cy:p[1],r:"4",fill:"#fff",stroke:color,strokeWidth:"2.5"}),
       React.createElement("text",{x:p[0],y:p[1]-12,textAnchor:"middle",fontSize:"11",fontWeight:"800",fill:"#3f3760"},fmtK(data[i].value)),
-      React.createElement("text",{x:p[0],y:H-12,textAnchor:"middle",fontSize:"12",fontWeight:"600",fill:"#9a93b8"},data[i].name))));
+      React.createElement("text",{x:p[0],y:H-12,textAnchor:"middle",fontSize:"12",fontWeight:"600",fill:"#9a93b8"},data[i].name)))));
 }
 
 function App(){
@@ -677,7 +693,7 @@ const CSS = `
 .ops button { background:#f3eeff; border:none; width:32px; height:32px; border-radius:10px; cursor:pointer; color:#5b5476; transition:.15s; display:flex; align-items:center; justify-content:center; }
 .ops button:hover { background:#e9e0ff; }
 .ops button.del:hover { background:#fdeef0; color:#dc2626; }
-.th-chart-scroll { overflow-x:auto; -webkit-overflow-scrolling:touch; }
+.th-chart-scroll { overflow-x:auto; -webkit-overflow-scrolling:touch; direction:ltr; min-width:0; }
 .th-chart-empty { padding:40px 16px; text-align:center; color:#a59fc4; font-size:13px; }
 .th-foot { text-align:center; font-size:11.5px; color:#a59fc4; margin-top:6px; }
 .th-modal-overlay { position:fixed; inset:0; z-index:100; background:rgba(30,30,46,.5); backdrop-filter:blur(3px); display:flex; align-items:center; justify-content:center; padding:16px; animation:fade .15s ease; }
@@ -696,6 +712,16 @@ const CSS = `
   .th-partner-cards { grid-template-columns:repeat(2,1fr); }
   .th-form { grid-template-columns:repeat(2,1fr); }
   .th-panel { padding:16px 14px; }
+  .th-pills { gap:6px; }
+  .pill { padding:6px 12px; font-size:12px; }
+  .th-header { flex-wrap:wrap; }
+  .th-hero-stats { flex-wrap:wrap; gap:8px; }
+  .th-debts { grid-template-columns:1fr; }
+}
+@media (max-width:400px) {
+  .th-cards { grid-template-columns:1fr; }
+  .th-partner-cards { grid-template-columns:1fr; }
+  .th-form { grid-template-columns:1fr; }
 }
 `;
 
