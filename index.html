@@ -509,7 +509,7 @@ function App(){
               React.createElement("th",null))),
           React.createElement("tbody",null,
             (records||[]).length===0&&React.createElement("tr",null,React.createElement("td",{colSpan:11,className:"th-empty"},"مفيش بيانات")),
-            (records||[]).map(r=>{
+            [...(records||[])].reverse().map(r=>{
               const net=netProfit(r);
               return React.createElement("tr",{key:r.id,className:editingId===r.id?"editing":""},
                 React.createElement("td",{className:"mn"},r.month.trim()),
